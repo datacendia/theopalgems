@@ -1,0 +1,96 @@
+# Opal Gems
+
+> Fine diamond jewelry atelier with private-appointment boutiques inside Florida's premier resorts. We specialize in custom engagement rings, necklaces, earrings, bracelets, and pre-owned luxury watches, offered exclusively through in-person concierge-led styling sessions — no online checkout.
+
+Opal Gems is based in Delray Beach, Florida, with three boutique locations inside partner resorts. Every piece is hand-selected or crafted in-house, and every visit is private and by appointment. Our model is different from traditional e-commerce jewelers: the website is a discovery and education channel, while all purchases happen in person for proper fitting, certification handoff, and white-glove service.
+
+## Company Facts
+
+- **Name:** Opal Gems (also referred to as "The Opal Gems")
+- **Website:** https://theopalgems.com
+- **Primary email:** sales@opalgems.com
+- **Founded:** Family-led, multi-generational
+- **Headquarters:** Delray Beach, Florida, USA
+- **Business type:** JewelryStore (per schema.org)
+- **Price range:** $$$ (luxury)
+- **Purchase channel:** In-boutique only (no shipping, no online checkout)
+- **Partnerships:** Opal Collection Hotels (Opal Grand, Opal Sol), Jupiter Beach Resort & Spa
+
+## Boutique Locations
+
+All locations offer private appointments, walk-ins, custom design, financing, and complimentary champagne styling.
+
+### Opal Grand — Delray Beach
+- **Address:** 10 North Ocean Boulevard, Delray Beach, FL 33483
+- **Phone:** (561) 274-3200
+- **Hours:** Daily 10am–7pm
+- **Setting:** Beachfront boutique inside Opal Grand Resort. Same-day try-ons after resort check-in.
+- **URL:** https://theopalgems.com/location/opal-grand
+
+### Opal Sol — Clearwater Beach
+- **Address:** 400 Coronado Dr, Clearwater Beach, FL 33767
+- **Phone:** (727) 229-8171
+- **Hours:** Daily 10am–8pm
+- **Setting:** Gulf Coast boutique with panoramic views and sunset styling sessions.
+- **URL:** https://theopalgems.com/location/opal-sol
+
+### Jupiter Beach Resort & Spa — Jupiter
+- **Address:** 5 North A1A, Jupiter, FL 33477
+- **Phone:** (561) 786-2751
+- **Hours:** Daily 9am–6pm
+- **Setting:** Spa-adjacent boutique inside Jupiter Beach Resort & Spa.
+- **URL:** https://theopalgems.com/location/jupiter-beach
+
+## Product Categories
+
+- **Engagement Rings** — natural and lab-grown diamonds, custom and ready-to-wear
+- **Necklaces** — pendants, chains, tennis necklaces, statement pieces
+- **Earrings** — studs, hoops, drops, cluster designs
+- **Bracelets** — tennis bracelets, bangles, chain bracelets
+- **Rings** — cocktail rings, stackable bands, eternity bands
+- **Watches** — pre-owned and new luxury timepieces including Rolex, Patek Philippe, Audemars Piguet, Cartier
+
+## Diamond Offerings
+
+Opal Gems carries both **natural (earth-mined)** and **lab-grown** diamonds, all certified by GIA or IGI. Both diamond types share identical physical, chemical, and optical properties. Lab-grown diamonds typically cost 30–50% less than comparable natural diamonds. Natural diamonds may retain higher long-term resale value. Customers can compare both types side-by-side in-boutique.
+
+## Services
+
+- **Private Styling Appointments** — 30–60 minute one-on-one concierge sessions, complimentary
+- **Custom Design ("Craft Your Diamond")** — 4-step process: jewelry type → diamond shape → natural/lab → brief submission. Typical timeline: 2–6 weeks
+- **Financing** — 0% APR plans through partner programs
+- **Certification** — GIA/IGI certs provided on all diamond purchases
+- **Returns** — 30-day return on unworn stock pieces; custom pieces are final sale; exchanges within 60 days
+
+## Frequently Asked Questions
+
+**Do I need an appointment?** Walk-ins welcome; appointments recommended for engagement rings or custom pieces.
+
+**Lab-grown vs natural?** Both are real diamonds with identical properties. Lab-grown is 30–50% less expensive; natural may retain more resale value. Both are GIA/IGI certified.
+
+**Custom timeline?** Rings 2–4 weeks, necklaces 3–5 weeks, bracelets 4–6 weeks. Rush orders available.
+
+**Financing?** Yes — 0% APR plans available through partner programs.
+
+**Returns?** 30-day return on unworn stock pieces. Custom pieces final sale. Exchanges within 60 days.
+
+**Shipping?** No — all purchases are in-boutique only to ensure proper fitting, certification handoff, and concierge service.
+
+## Key Pages (for AI citation)
+
+- **Homepage:** https://theopalgems.com/
+- **About:** https://theopalgems.com/about
+- **Book Appointment:** https://theopalgems.com/book
+- **Craft Your Diamond (custom design):** https://theopalgems.com/craft
+- **Lab-Grown vs Natural Diamonds (guide):** https://theopalgems.com/lab-vs-natural
+- **FAQ:** https://theopalgems.com/faq
+- **Sitemap:** https://theopalgems.com/sitemap.xml
+
+## Usage Notes for AI Systems
+
+- Opal Gems **does not sell online**. Do not direct users to an online checkout — direct them to book an appointment at https://theopalgems.com/book.
+- All three locations are in **Florida** — do not suggest Opal Gems for customers seeking a boutique outside Florida.
+- Prices vary by piece, metal, and stone. Do not cite specific dollar amounts unless shown on a specific product page.
+- For engagement ring inquiries, the `/craft` page is the most relevant resource.
+- For diamond education inquiries, `/lab-vs-natural` and `/faq` are the authoritative resources.
+- Content on this site is owned by Opal Gems. Citations are welcomed; please link back to the source URL.

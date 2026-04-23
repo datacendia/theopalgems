@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import watches from '../data/watches.js';
 import { locationCuratedProducts } from '../data/locationCuratedProducts.js';
+import SEO from '../components/SEO';
 
 const locationInfo = {
   'opal-grand': {
@@ -70,8 +71,35 @@ export default function LocationPage() {
     }
   }, [category]);
 
+  const locPath = category ? `/location/${locationId}/${category}` : `/location/${locationId}`;
+  const locSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'JewelryStore',
+    name: `Opal Gems — ${info.name}`,
+    description: info.longDescription,
+    url: `https://theopalgems.com${locPath}`,
+    telephone: info.phone,
+    priceRange: '$$$',
+    address: { '@type': 'PostalAddress', streetAddress: info.address.split(',')[0], addressLocality: info.city.split(',')[0], addressRegion: 'FL', addressCountry: 'US' },
+    openingHours: info.hours,
+  };
+
   return (
     <div className="page">
+      <SEO
+        title={`${info.name} Boutique${selectedCategory ? ` — ${selectedCategory.name}` : ''} — ${info.city}`}
+        description={`${info.longDescription} Located at ${info.address}. ${info.hours}. Call ${info.phone} to book a styling appointment.`}
+        path={locPath}
+        breadcrumbs={[
+          { name: 'Home', path: '/' },
+          { name: 'Locations', path: '/#locations' },
+          { name: info.name, path: `/location/${locationId}` },
+          ...(selectedCategory
+            ? [{ name: selectedCategory.name, path: `/location/${locationId}/${selectedCategory.key}` }]
+            : []),
+        ]}
+        jsonLd={locSchema}
+      />
       <div className="page-hero page-hero--location">
         <div className="page-hero__content">
           <p className="eyebrow">Boutique Location</p>
@@ -91,7 +119,7 @@ export default function LocationPage() {
           <section className="section" id={selectedCategory.key} ref={categoryRef}>
             <div className="category-feature">
               <div className="category-feature__image">
-                <img src={selectedCategory.image} alt={selectedCategory.name} />
+                <img src={selectedCategory.image} alt={selectedCategory.name} loading="lazy" decoding="async" />
               </div>
               <div className="category-feature__content">
                 <p className="eyebrow">{selectedCategory.name} at {info.name}</p>
@@ -135,7 +163,7 @@ export default function LocationPage() {
               {filteredWatches.map((watch) => (
                 <div key={watch.id} className="watch-card">
                   <div className="watch-card__image">
-                    <img src={watch.image} alt={watch.name} />
+                    <img src={watch.image} alt={watch.name} loading="lazy" decoding="async" />
                   </div>
                   <div className="watch-card__info">
                     <p className="watch-card__brand">{watch.brand}</p>
@@ -268,7 +296,7 @@ export default function LocationPage() {
                 className={`category-card ${category === cat.key ? 'category-card--active' : ''}`}
               >
                 <div className="category-card__image">
-                  <img src={cat.image} alt={cat.name} />
+                  <img src={cat.image} alt={cat.name} loading="lazy" decoding="async" />
                 </div>
                 <h3>{cat.name}</h3>
               </Link>

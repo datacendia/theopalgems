@@ -6,3 +6,36 @@ dist
 
 # Local Netlify folder
 .netlify
+
+assets-original-backup/
+
+# Build artifacts and caches
+.cache
+.parcel-cache
+.vite
+coverage
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# OS/editor files
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+*.temp
+.temp
+.tmp
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Playwright browsers (cached on Netlify anyway)
+ms-playwright/

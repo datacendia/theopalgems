@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { isAdminLoggedIn, adminLogout, getDashboardStats } from './api';
 import { ErrorProvider } from './ErrorContext';
+import './admin.css';
 
 const navItems = [
   { path: '/admin/dashboard', label: 'Dashboard', icon: 'grid' },

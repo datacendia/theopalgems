@@ -2,82 +2,11 @@ import React, { useEffect, useMemo, useState, useRef, useCallback } from 'react'
 import { Link } from 'react-router-dom';
 import useScrollReveal from './hooks/useScrollReveal';
 import { getLocations, getSections, getPhotos } from './admin/api';
-import { Option2Gallery, Option3Gallery, Option4Gallery, Option5Gallery } from './components/GalleryOptions';
+import SEO from './components/SEO';
 
 const locationMap = {};
 
 const placeholderImage = '/assets/kira/KJ00061P.MX-3-21.jpg';
-
-// Option Selector Component
-function GallerySelector({ currentOption, onChange }) {
-  return (
-    <div style={{ 
-      position: 'fixed', 
-      top: '20px', 
-      right: '20px', 
-      background: 'white', 
-      padding: '16px', 
-      borderRadius: '8px', 
-      boxShadow: '0 4px 12px rgba(0,0,0,0.15)', 
-      zIndex: 1000,
-      fontSize: '14px'
-    }}>
-      <div style={{ fontWeight: 'bold', marginBottom: '8px' }}>Gallery Options:</div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-        <label><input type="radio" name="gallery" checked={currentOption === 1} onChange={() => onChange(1)} /> Option 1: Rotating Gallery</label>
-        <label><input type="radio" name="gallery" checked={currentOption === 2} onChange={() => onChange(2)} /> Option 2: Split Layout</label>
-        <label><input type="radio" name="gallery" checked={currentOption === 3} onChange={() => onChange(3)} /> Option 3: Full-Width Carousel</label>
-        <label><input type="radio" name="gallery" checked={currentOption === 4} onChange={() => onChange(4)} /> Option 4: Interactive Grid</label>
-        <label><input type="radio" name="gallery" checked={currentOption === 5} onChange={() => onChange(5)} /> Option 5: Video Background</label>
-      </div>
-    </div>
-  );
-}
-
-// Gallery Component
-function Gallery() {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  
-  const images = [
-    '/assets/Stacked_diamond_eternity_bands.PNG',
-    '/assets/watch_category.PNG',
-    '/assets/category-bracelets.PNG',
-    '/assets/category-necklaces.PNG',
-    '/assets/category-earrings.PNG'
-  ];
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % images.length);
-    }, 3000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  return (
-    <div className="crafted-gallery">
-      <div className="gallery-container">
-        {images.map((src, index) => (
-          <div 
-            key={index}
-            className={`gallery-image ${index === currentIndex ? 'active' : ''}`}
-          >
-            <img src={src} alt={`Jewelry collection ${index + 1}`} />
-          </div>
-        ))}
-        <div className="gallery-dots">
-          {images.map((_, index) => (
-            <span 
-              key={index}
-              className={`dot ${index === currentIndex ? 'active' : ''}`}
-              onClick={() => setCurrentIndex(index)}
-            />
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
 
 function normalizeLocationKey(locationName) {
   const name = (locationName || '').toLowerCase();
@@ -326,6 +255,7 @@ function Modal({ product, onClose }) {
   );
 }
 
+// eslint-disable-next-line no-unused-vars
 const CONTACT_RECIPIENTS = [
   'sales@opalgems.com',
   'alexandramattatia@gmail.com',
@@ -333,6 +263,7 @@ const CONTACT_RECIPIENTS = [
   'robinjopalgrand@gmail.com'
 ];
 
+// eslint-disable-next-line no-unused-vars
 function ContactModal({ isOpen, onClose }) {
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: '' });
   const [submitted, setSubmitted] = useState(false);
@@ -460,14 +391,18 @@ export default function App() {
   const [modalProduct, setModalProduct] = useState(null);
   const [imageManifest, setImageManifest] = useState({});
   const [visibleCount, setVisibleCount] = useState(12);
-  const [contactModalOpen, setContactModalOpen] = useState(false);
   const [sortBy, setSortBy] = useState('name');
   const [introPhase, setIntroPhase] = useState('visible');
   const [locations, setLocations] = useState([]);
   const [testimonials, setTestimonials] = useState([]);
-  const [heroImage, setHeroImage] = useState('/assets/boutique-mood-lifestyle.jpg');
+  const [heroImage, setHeroImage] = useState('/assets/opal-lobby.jpg');
+  const [heroImages, setHeroImages] = useState([
+    '/assets/homepage-inspiration/WhatsApp Image 2026-04-17 at 11.01.33.jpeg',
+    '/assets/homepage-inspiration/stacked2.jpeg',
+    '/assets/homepage-inspiration/WhatsApp Image 2026-04-17 at 11.01.33 (1).jpeg'
+  ]);
+  const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
   const [showcasePhotos, setShowcasePhotos] = useState([]);
-  const [galleryOption, setGalleryOption] = useState(2);
   const heroRef = useRef(null);
 
   useScrollReveal();
@@ -509,17 +444,19 @@ export default function App() {
   useEffect(() => {
     const handleScroll = () => {
       if (heroRef.current) {
-        const img = heroRef.current.querySelector('.hero-banner__image img');
-        if (img) {
-          const scrollY = window.scrollY;
-          const offset = scrollY * 0.35;
-          img.style.transform = `scale(1.15) translateY(${offset}px)`;
-        }
+        const imgs = heroRef.current.querySelectorAll('.hero-banner__image img');
+        const scrollY = window.scrollY;
+        const offset = scrollY * 0.35;
+        imgs.forEach((img, idx) => {
+          const scale = idx === 1 ? 0.85 : 1.15;
+          img.style.transform = `scale(${scale}) translateY(${offset}px)`;
+        });
       }
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
 
   useEffect(() => {
     Promise.all([
@@ -626,6 +563,20 @@ export default function App() {
 
   return (
     <div className="page">
+      <SEO
+        path="/"
+        jsonLd={{
+          '@context': 'https://schema.org',
+          '@type': 'WebSite',
+          name: 'Opal Gems',
+          url: 'https://theopalgems.com',
+          potentialAction: {
+            '@type': 'SearchAction',
+            target: 'https://theopalgems.com/search?q={search_term_string}',
+            'query-input': 'required name=search_term_string',
+          },
+        }}
+      />
       {/* Luxury Intro Screen */}
       {introPhase !== 'done' && (
         <div className={`intro-screen${introPhase === 'fading' ? ' fade-out' : ''}`}>
@@ -641,17 +592,24 @@ export default function App() {
       {/* Hero Banner with Parallax */}
       <section className="hero-banner hero-banner--parallax" ref={heroRef}>
         <div className="hero-banner__image">
-          <img 
-                  src={heroImage} 
-                  srcSet={`${heroImage}?w=800 800w, ${heroImage}?w=1600 1600w, ${heroImage} 2400w`}
-                  sizes="100vw"
-                  alt="Opal Gems boutique experience" 
-                />
+          <div className="hero-banner__images">
+            {heroImages.map((img, idx) => (
+              <img
+                key={idx}
+                src={img}
+                alt="Opal Gems boutique experience"
+                className="hero-banner__multi-image"
+                loading="eager"
+                fetchpriority={idx === 0 ? 'high' : 'auto'}
+                decoding="async"
+              />
+            ))}
+          </div>
         </div>
         <div className="hero-banner__overlay">
           <div className="hero-banner__content">
             <p className="hero-banner__eyebrow">Step Into The Opal Experience</p>
-            <h1 className="hero-banner__title">Welcome to the World of Opal Gems</h1>
+            <h1 className="hero-banner__title">Welcome to the World of Gems</h1>
             <p className="hero-banner__tagline">Elevated Diamonds, In Person</p>
             <div className="hero-banner__actions">
               <a className="pill primary" href="#categories">Shop Now</a>
@@ -661,41 +619,59 @@ export default function App() {
         </div>
       </section>
 
-      {/* Category Grid */}
-      <section className="categories-section" id="categories">
-        <div className="categories-grid stagger-children">
-          {[
-            { name: 'Necklaces', image: '/assets/category-necklaces.PNG', startingAt: 1250 },
-            { name: 'Earrings', image: '/assets/category-earrings.PNG', startingAt: 600 },
-            { name: 'Bracelets', image: '/assets/category-bracelets.PNG', startingAt: 3250 },
-            { name: 'Rings', image: '/assets/category-rings.PNG', startingAt: 1500 },
-            { name: 'Watches', image: '/assets/watch_category.PNG', startingAt: 4500 }
-          ].map((cat) => (
-            <Link key={cat.name} to={`/category/${cat.name.toLowerCase()}`} className="category-card">
-              <div className="category-card__image">
-                <img src={cat.image} alt={cat.name} />
-              </div>
-              <h3>{cat.name}</h3>
-              <p className="category-card__starting">Starting at ${cat.startingAt.toLocaleString()}</p>
+      {/* Image Grid Section */}
+      <section className="image-grid-section" id="categories">
+        <div className="image-grid">
+          {/* Top row */}
+          <div className="image-grid__top">
+            <img src="/assets/homepage-inspiration/lose.jpeg" alt="Diamond jewelry" className="image-grid__item image-grid__item--large" loading="lazy" decoding="async" />
+            <img src="/assets/homepage-inspiration/stacked.jpeg" alt="Stacked jewelry" className="image-grid__item image-grid__item--large" loading="lazy" decoding="async" />
+          </div>
+          {/* Bottom row - Category Selection */}
+          <div className="image-grid__bottom">
+            <Link to="/category/necklaces" className="image-grid__item-wrapper">
+              <img src="/assets/homepage-inspiration/necklace.jpeg" alt="Necklaces" className="image-grid__item" loading="lazy" decoding="async" />
+              <span className="image-grid__label">Necklaces</span>
             </Link>
-          ))}
+            <Link to="/category/earrings" className="image-grid__item-wrapper">
+              <img src="/assets/homepage-inspiration/earings.jpeg" alt="Earrings" className="image-grid__item" loading="lazy" decoding="async" />
+              <span className="image-grid__label">Earrings</span>
+            </Link>
+            <Link to="/category/bracelets" className="image-grid__item-wrapper">
+              <img src="/assets/homepage-inspiration/braclet.jpeg" alt="Bracelets" className="image-grid__item" loading="lazy" decoding="async" />
+              <span className="image-grid__label">Bracelets</span>
+            </Link>
+            <Link to="/category/rings" className="image-grid__item-wrapper">
+              <img src="/assets/homepage-inspiration/ring.jpeg" alt="Rings" className="image-grid__item" loading="lazy" decoding="async" />
+              <span className="image-grid__label">Rings</span>
+            </Link>
+            <Link to="/category/watches" className="image-grid__item-wrapper">
+              <img src="/assets/homepage-inspiration/watch.jpeg" alt="Watches" className="image-grid__item" loading="lazy" decoding="async" />
+              <span className="image-grid__label">Watches</span>
+            </Link>
+          </div>
         </div>
       </section>
 
       {/* Crafted for Every Occasion - Multi-Image Gallery */}
-      <section className="showcase-gallery reveal">
-        <div className="crafted-section">
-          <Option2Gallery />
-          <div style={{ textAlign: 'center' }}>
-            <h2 className="crafted-title">
-              CRAFTED FOR EVERY OCCASION
-            </h2>
-            <p className="crafted-subtitle">
-              From timeless classics to modern statements
-            </p>
-            <Link to="/category/rings" className="pill primary crafted-cta">
-              Shop All Collections
-            </Link>
+      <section className="reveal">
+        <div className="crafted-section crafted-section--simple">
+          <div className="crafted-image-wrapper">
+            <img src="/assets/crafted-left.jpeg" alt="Jewelry showcase" className="crafted-image" loading="lazy" decoding="async" />
+            <img src="/assets/crafted-right.jpeg" alt="Diamond pieces" className="crafted-image" loading="lazy" decoding="async" />
+          </div>
+          <div className="crafted-content-wrapper">
+            <div className="crafted-content">
+              <h2 className="crafted-title">
+                CRAFTED FOR EVERY OCCASION
+              </h2>
+              <p className="crafted-subtitle">
+                From timeless classics to modern statements
+              </p>
+              <Link to="/category/rings" className="pill primary crafted-cta">
+                Shop All Collections
+              </Link>
+            </div>
           </div>
         </div>
       </section>
@@ -710,6 +686,17 @@ export default function App() {
             <p>
               Opal Gems partners with Opal hotels to elevate and complete the perfect vacation. Fine jewelry, curated collections, and personalized service — all steps from the sand. Because the best souvenirs are the ones that sparkle.
             </p>
+          </div>
+        </section>
+
+        {/* Full-Width Carousel */}
+        <section className="full-width-carousel">
+          <div className="carousel-track">
+            <img src="/assets/homepage-inspiration/WhatsApp Image 2026-04-17 at 11.01.33 (1).jpeg" alt="Jewelry showcase" loading="lazy" decoding="async" />
+            <img src="/assets/homepage-inspiration/WhatsApp Image 2026-04-17 at 11.01.33 (3).jpeg" alt="Diamond pieces" loading="lazy" decoding="async" />
+            <img src="/assets/homepage-inspiration/WhatsApp Image 2026-04-17 at 11.01.33.jpeg" alt="Jewelry collection" loading="lazy" decoding="async" />
+            <img src="/assets/homepage-inspiration/stacked2.jpeg" alt="Elegant jewelry" loading="lazy" decoding="async" />
+            <img src="/assets/homepage-inspiration/lose.jpeg" alt="Diamond rings" loading="lazy" decoding="async" />
           </div>
         </section>
 
@@ -738,18 +725,8 @@ export default function App() {
               </div>
               <span className="reviews-count">Based on 127 reviews</span>
             </div>
-            <div className="partnership-visual">
-              <img src="/assets/Stacked_diamond_eternity_bands.PNG" alt="Diamond jewelry showcase" className="partnership-image" />
-            </div>
           </div>
         </section>
-
-        {/* Elegant Divider */}
-        <div className="luxury-divider reveal">
-          <div className="luxury-divider__line" />
-          <div className="luxury-divider__diamond" />
-          <div className="luxury-divider__line" />
-        </div>
 
         <section className="section reveal" id="locations">
           <div className="section__header" style={{ textAlign: 'center', maxWidth: '700px', margin: '0 auto 48px' }}>
@@ -761,7 +738,7 @@ export default function App() {
             {locations.map((loc) => (
               <article key={loc.key} className="location-card-v2">
                 <div className="location-card-v2__image">
-                  <img src={loc.image} alt={loc.name} />
+                  <img src={loc.image} alt={loc.name} loading="lazy" decoding="async" />
                   <div className="location-card-v2__tag">{loc.status === 'active' ? 'Open' : 'Coming soon'}</div>
                 </div>
                 <div className="location-card-v2__body">
@@ -791,8 +768,6 @@ export default function App() {
         </section>
 
       </main>
-
-      <ContactModal isOpen={contactModalOpen} onClose={() => setContactModalOpen(false)} />
     </div>
   );
 }

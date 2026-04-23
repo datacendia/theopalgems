@@ -1,12 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import usePageTitle from '../hooks/usePageTitle';
+import SEO from '../components/SEO';
 
 export default function TermsOfServicePage() {
-  usePageTitle('Terms of Service');
-  
   return (
     <div className="page">
+      <SEO title="Terms of Service" description="Opal Gems terms of service, including booking policies, purchase terms, and acceptable use." path="/terms" />
       <div className="page-hero page-hero--small">
         <div className="page-hero__content">
           <p className="eyebrow">Legal</p>
@@ -136,8 +135,8 @@ export default function TermsOfServicePage() {
               For questions about these terms, please contact us at:
             </p>
             <p>
-              <strong>Email:</strong> <a href="mailto:legal@opalgems.com">legal@opalgems.com</a><br />
-              <strong>Phone:</strong> (561) 555-0101<br />
+              <strong>Email:</strong> <a href="mailto:sales@opalgems.com">sales@opalgems.com</a><br />
+              <strong>Phone:</strong> <a href="tel:+15612519560">+1 (561) 251-9560</a><br />
               <strong>Address:</strong> 10 N Ocean Blvd, Delray Beach, FL 33483
             </p>
           </section>

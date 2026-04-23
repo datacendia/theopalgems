@@ -1,12 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import usePageTitle from '../hooks/usePageTitle';
+import SEO from '../components/SEO';
 
 export default function PrivacyPolicyPage() {
-  usePageTitle('Privacy Policy');
-  
   return (
     <div className="page">
+      <SEO title="Privacy Policy" description="How Opal Gems collects, uses, and protects your personal information, including GDPR and CCPA-compliant practices." path="/privacy" />
       <div className="page-hero page-hero--small">
         <div className="page-hero__content">
           <p className="eyebrow">Legal</p>
@@ -109,8 +108,8 @@ export default function PrivacyPolicyPage() {
               If you have questions about this privacy policy or your personal data, please contact us at:
             </p>
             <p>
-              <strong>Email:</strong> <a href="mailto:privacy@opalgems.com">privacy@opalgems.com</a><br />
-              <strong>Phone:</strong> (561) 555-0101<br />
+              <strong>Email:</strong> <a href="mailto:sales@opalgems.com">sales@opalgems.com</a><br />
+              <strong>Phone:</strong> <a href="tel:+15612519560">+1 (561) 251-9560</a><br />
               <strong>Address:</strong> 10 N Ocean Blvd, Delray Beach, FL 33483
             </p>
           </section>

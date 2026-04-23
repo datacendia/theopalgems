@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import SEO from '../components/SEO';
 
 const CALENDLY_URL = 'https://calendly.com/theopalgems-sales/30min';
 
@@ -26,6 +27,24 @@ export default function BookingPage() {
 
   return (
     <div className="page booking-page">
+      <SEO
+        title="Book Your Visit"
+        description="Book a private styling appointment at any Opal Gems boutique in Delray Beach, Clearwater Beach, or Jupiter, Florida. 30–60 minute one-on-one concierge session with complimentary champagne."
+        path="/book"
+        breadcrumbs={[
+          { name: 'Home', path: '/' },
+          { name: 'Book Appointment', path: '/book' },
+        ]}
+        jsonLd={{
+          '@context': 'https://schema.org',
+          '@type': 'Service',
+          name: 'Private Jewelry Styling Appointment',
+          provider: { '@type': 'JewelryStore', name: 'Opal Gems' },
+          areaServed: { '@type': 'State', name: 'Florida' },
+          serviceType: 'In-boutique jewelry consultation',
+          offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD', description: 'Complimentary appointment' },
+        }}
+      />
       <div className="page-hero page-hero--short">
         <div className="page-hero__content">
           <p className="eyebrow">Private Appointment</p>

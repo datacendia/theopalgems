@@ -1,6 +1,20 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import usePageTitle from '../hooks/usePageTitle';
+import SEO from '../components/SEO';
+
+const craftSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'HowTo',
+  name: 'How to Craft a Custom Diamond Piece at Opal Gems',
+  description: 'A guided four-step process for designing a custom diamond jewelry piece: choose jewelry type, diamond shape, natural or lab-grown, and submit your brief.',
+  step: [
+    { '@type': 'HowToStep', position: 1, name: 'Choose your jewelry type', text: 'Select a ring, necklace, earrings, or bracelet to build around.' },
+    { '@type': 'HowToStep', position: 2, name: 'Select a diamond shape', text: 'Choose from round, princess, oval, cushion, emerald, pear, marquise, radiant, asscher, or heart.' },
+    { '@type': 'HowToStep', position: 3, name: 'Natural or lab-grown', text: 'Decide between GIA/IGI certified natural diamonds or ethically created lab-grown stones.' },
+    { '@type': 'HowToStep', position: 4, name: 'Submit your brief', text: 'Our concierge reaches out to schedule a private styling appointment in-boutique.' },
+  ],
+  totalTime: 'P14D',
+};
 
 const jewelryTypes = [
   { key: 'ring', name: 'Ring', image: '/assets/ring-3-1J1kiCf1QOj607i8A4hnGz1J_k0-JvjOa.jpg', description: 'Engagement rings, cocktail rings, and bands', timeline: '2-4 weeks' },
@@ -28,7 +42,6 @@ const diamondTypes = [
 ];
 
 export default function CraftDiamondPage() {
-  usePageTitle('Craft Your Diamond');
   const [step, setStep] = useState(1);
   const [selectedJewelry, setSelectedJewelry] = useState(null);
   const [selectedShape, setSelectedShape] = useState(null);
@@ -84,6 +97,16 @@ export default function CraftDiamondPage() {
 
   return (
     <div className="page">
+      <SEO
+        title="Craft Your Diamond"
+        description="Design a custom diamond piece at Opal Gems. Choose your jewelry type, diamond shape (round, princess, oval, emerald, cushion and more), and natural or lab-grown stone, then book an in-boutique consultation."
+        path="/craft"
+        breadcrumbs={[
+          { name: 'Home', path: '/' },
+          { name: 'Custom Creations', path: '/craft' },
+        ]}
+        jsonLd={craftSchema}
+      />
       <div className="page-hero">
         <div className="page-hero__content">
           <p className="eyebrow">Custom Creations</p>
@@ -132,7 +155,7 @@ export default function CraftDiamondPage() {
                   onClick={() => handleJewelrySelect(jewelry)}
                 >
                   <div className="craft-option__image">
-                    <img src={jewelry.image} alt={jewelry.name} />
+                    <img src={jewelry.image} alt={jewelry.name} loading="lazy" decoding="async" />
                   </div>
                   <h3>{jewelry.name}</h3>
                   <p className="small">{jewelry.description}</p>
@@ -158,7 +181,7 @@ export default function CraftDiamondPage() {
                   onClick={() => handleShapeSelect(shape)}
                 >
                   <div className="diamond-shape-img">
-                    <img src={shape.image} alt={shape.name} />
+                    <img src={shape.image} alt={shape.name} loading="lazy" decoding="async" />
                   </div>
                   <h3>{shape.name}</h3>
                   <p className="small">{shape.description}</p>

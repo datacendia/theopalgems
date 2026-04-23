@@ -1,12 +1,29 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import usePageTitle from '../hooks/usePageTitle';
+import { Link, useNavigate } from 'react-router-dom';
+import SEO from '../components/SEO';
 
 export default function AboutPage() {
-  usePageTitle('About Opal Gems');
+  const navigate = useNavigate();
+  const goToLocations = (e) => {
+    e.preventDefault();
+    navigate('/');
+    setTimeout(() => {
+      const el = document.getElementById('locations');
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
+  };
 
   return (
     <div className="page">
+      <SEO
+        title="About Opal Gems"
+        description="Founded inside Florida's premier resorts, Opal Gems is a family-led diamond jewelry atelier offering an elevated, in-person shopping experience with master jewelers on-site."
+        path="/about"
+        breadcrumbs={[
+          { name: 'Home', path: '/' },
+          { name: 'About', path: '/about' },
+        ]}
+      />
       <div className="page-hero">
         <div className="page-hero__content">
           <p className="eyebrow">About Opal Gems</p>
@@ -19,7 +36,7 @@ export default function AboutPage() {
         <section className="section" id="about">
           <div className="about-grid">
             <div className="about-image">
-              <img src="/assets/opal-lobby.jpg" alt="Opal Gems boutique" />
+              <img src="/assets/opal-lobby.jpg" alt="Opal Gems boutique" loading="lazy" decoding="async" />
             </div>
             <div className="about-content">
               <p className="eyebrow">Our Story</p>
@@ -31,7 +48,7 @@ export default function AboutPage() {
                 From engagement rings to statement necklaces, our collection is crafted for those who appreciate the art of fine jewelry. Visit us at any of our Florida locations for a private styling experience.
               </p>
               <div className="actions">
-                <Link className="pill primary" to="/#locations">Visit a boutique</Link>
+                <a className="pill primary" href="/#locations" onClick={goToLocations}>Visit a boutique</a>
               </div>
             </div>
           </div>

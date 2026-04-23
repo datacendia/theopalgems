@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import watches from '../data/watches.js';
 import { kiraProducts } from '../data/kiraProducts.js';
+import SEO from '../components/SEO';
 
 const categoryInfo = {
   necklaces: {
@@ -159,6 +160,32 @@ export default function CategoryPage() {
 
   return (
     <div className="page category-page">
+      <SEO
+        title={`${info.title} — Fine Diamond Jewelry`}
+        description={`${info.description} Visit Opal Gems boutiques in Delray Beach, Clearwater Beach, and Jupiter, Florida to see the full ${info.title.toLowerCase()} collection in person.`}
+        path={`/category/${category}`}
+        image={info.image}
+        breadcrumbs={[
+          { name: 'Home', path: '/' },
+          { name: 'Collections', path: '/#categories' },
+          { name: info.title, path: `/category/${category}` },
+        ]}
+        jsonLd={{
+          '@context': 'https://schema.org',
+          '@type': 'CollectionPage',
+          name: `${info.title} | Opal Gems`,
+          description: info.description,
+          url: `https://theopalgems.com/category/${category}`,
+          isPartOf: { '@type': 'WebSite', name: 'Opal Gems', url: 'https://theopalgems.com' },
+        }}
+      />
+      <div className="page-hero page-hero--short">
+        <div className="page-hero__content">
+          <p className="eyebrow">Our Collection</p>
+          <h1>{info.title}</h1>
+          <p className="lead">{info.description}</p>
+        </div>
+      </div>
       <main className="container">
         {/* Watch Products Grid */}
         {category === 'watches' && (
@@ -179,7 +206,7 @@ export default function CategoryPage() {
               {filteredWatches.map((watch) => (
                 <div key={watch.id} className="watch-card" onClick={() => setSelectedProduct({ ...watch, description: watch.name, link: watch.image })} style={{ cursor: 'pointer' }}>
                   <div className="watch-card__image">
-                    <img src={watch.image} alt={watch.name} />
+                    <img src={watch.image} alt={watch.name} loading="lazy" decoding="async" />
                   </div>
                   <div className="watch-card__info">
                     <p className="watch-card__brand">{watch.brand}</p>
@@ -259,7 +286,7 @@ export default function CategoryPage() {
               {locations.map((loc) => (
                 <Link key={loc.key} to={`/location/${loc.key}`} className="card location-card">
                   <div className="location-card__image">
-                    <img src={loc.image} alt={loc.name} />
+                    <img src={loc.image} alt={loc.name} loading="lazy" decoding="async" />
                   </div>
                   <div className="tag">Open</div>
                   <h3>{loc.name}</h3>

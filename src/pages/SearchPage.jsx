@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { kiraProducts } from '../data/kiraProducts.js';
 import watches from '../data/watches.js';
-import usePageTitle from '../hooks/usePageTitle';
+import SEO from '../components/SEO';
 
 const categoryLinks = {
   necklaces: '/category/necklaces',
@@ -49,7 +49,6 @@ export default function SearchPage() {
   const [inputValue, setInputValue] = useState(searchParams.get('q') || '');
   const query = searchParams.get('q') || '';
 
-  usePageTitle(query ? `Search: "${query}" — Opal Gems` : 'Search — Opal Gems');
 
   useEffect(() => {
     setInputValue(query);
@@ -85,6 +84,12 @@ export default function SearchPage() {
 
   return (
     <div className="page">
+      <SEO
+        title={query ? `Search: "${query}"` : 'Search'}
+        description="Search the Opal Gems catalog of diamond jewelry and watches by name, category, brand, or SKU."
+        path="/search"
+        noIndex
+      />
       <div className="page-hero page-hero--sm">
         <div className="page-hero__content">
           <p className="eyebrow">Search</p>
@@ -149,7 +154,7 @@ export default function SearchPage() {
                       item.external ? (
                         <a key={item.id} href={item.href} target="_blank" rel="noopener noreferrer" className="search-result-card">
                           <div className="search-result-card__image">
-                            <img src={item.image} alt={item.name} />
+                            <img src={item.image} alt={item.name} loading="lazy" decoding="async" />
                           </div>
                           <div className="search-result-card__info">
                             <p className="search-result-card__name">{item.name}</p>
@@ -160,7 +165,7 @@ export default function SearchPage() {
                       ) : (
                         <Link key={item.id} to={item.href} className="search-result-card">
                           <div className="search-result-card__image">
-                            <img src={item.image} alt={item.name} />
+                            <img src={item.image} alt={item.name} loading="lazy" decoding="async" />
                           </div>
                           <div className="search-result-card__info">
                             <p className="search-result-card__name">{item.name}</p>

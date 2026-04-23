@@ -1,12 +1,34 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import usePageTitle from '../hooks/usePageTitle';
+import SEO from '../components/SEO';
+
+const articleSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: 'Lab-Grown vs Natural Diamonds: A Complete Guide',
+  description: 'Compare lab-grown and natural diamonds across price, optical properties, certification, value retention, and ethical sourcing — from Opal Gems, Florida.',
+  author: { '@type': 'Organization', name: 'Opal Gems' },
+  publisher: { '@type': 'Organization', name: 'Opal Gems', logo: { '@type': 'ImageObject', url: 'https://theopalgems.com/favicon.svg' } },
+  datePublished: '2026-01-01',
+  dateModified: '2026-04-01',
+  mainEntityOfPage: 'https://theopalgems.com/lab-vs-natural',
+  image: 'https://theopalgems.com/assets/boutique-mood-lifestyle.jpg',
+};
 
 export default function LabVsNaturalPage() {
-  usePageTitle('Lab-Grown vs Natural Diamonds');
-
   return (
     <div className="page">
+      <SEO
+        title="Lab-Grown vs Natural Diamonds"
+        description="A clear, expert comparison of lab-grown and natural diamonds — price, properties, certification, value retention, and ethics. See both in person at our Florida boutiques."
+        path="/lab-vs-natural"
+        type="article"
+        breadcrumbs={[
+          { name: 'Home', path: '/' },
+          { name: 'Diamond Education', path: '/lab-vs-natural' },
+        ]}
+        jsonLd={articleSchema}
+      />
       <div className="page-hero">
         <div className="page-hero__content">
           <p className="eyebrow">Diamond Education</p>

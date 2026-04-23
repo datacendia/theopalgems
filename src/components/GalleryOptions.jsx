@@ -6,10 +6,8 @@ export function Option2Gallery() {
   return (
     <div className="crafted-gallery option-2">
       <div className="multi-product-container">
-        <div className="product-stack">
-          <img src="/assets/Stacked_diamond_eternity_bands.PNG" alt="Stacked rings" />
-          <img src="/assets/category-bracelets.PNG" alt="Tennis bracelet" />
-        </div>
+        <div className="background-image background-image--left" style={{ backgroundImage: 'url(/assets/WhatsApp Image 2026-02-02 at 12.41.59 (2).jpeg)' }} />
+        <div className="background-image background-image--right" style={{ backgroundImage: 'url(/assets/WhatsApp Image 2026-02-02 at 12.41.58 (2).jpeg)' }} />
       </div>
     </div>
   );
@@ -80,7 +78,7 @@ export function Option4Gallery() {
         {products.map((product, index) => (
           <Link key={index} to={`/category/${product.category}`} className="grid-item">
             <div className="grid-item-image">
-              <img src={product.image} alt={product.title} />
+              <img src={product.image} alt={product.title} loading="lazy" decoding="async" />
               <div className="grid-item-overlay">
                 <h4>{product.title}</h4>
                 <span className="grid-arrow">→</span>
@@ -99,7 +97,7 @@ export function Option5Gallery() {
     <div className="crafted-gallery option-5">
       <div className="video-hero">
         <div className="video-background">
-          <img src="/assets/Stacked_diamond_eternity_bands.PNG" alt="Jewelry showcase" />
+          <img src="/assets/Stacked_diamond_eternity_bands.PNG" alt="Jewelry showcase" loading="lazy" decoding="async" />
           <div className="video-overlay"></div>
         </div>
         <div className="video-content">

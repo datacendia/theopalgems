@@ -12,6 +12,8 @@ export default function ImageWithSkeleton({ src, alt, className = '' }) {
       <img
         src={src}
         alt={alt}
+        loading="lazy"
+        decoding="async"
         onLoad={() => setLoaded(true)}
         onError={() => setError(true)}
         style={{ 
