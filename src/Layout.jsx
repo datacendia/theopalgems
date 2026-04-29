@@ -8,6 +8,7 @@ export default function Layout() {
   const [searchQuery, setSearchQuery] = useState('');
   const [locations, setLocations] = useState([]);
   const [subscribeEmail, setSubscribeEmail] = useState('');
+  const [subscribeHoneypot, setSubscribeHoneypot] = useState('');
   const [subscribeStatus, setSubscribeStatus] = useState({ state: 'idle', message: '' });
   const navigate = useNavigate();
 
@@ -20,14 +21,14 @@ export default function Layout() {
       const res = await fetch('/api/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, honeypot: subscribeHoneypot }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         setSubscribeStatus({ state: 'error', message: data.error || 'Something went wrong. Please try again.' });
         return;
       }
-      setSubscribeStatus({ state: 'success', message: data.message || 'Thanks for subscribing!' });
+      setSubscribeStatus({ state: 'success', message: data.message || 'Please check your inbox to confirm.' });
       setSubscribeEmail('');
     } catch (err) {
       setSubscribeStatus({ state: 'error', message: 'Network error. Please try again.' });
@@ -64,11 +65,11 @@ export default function Layout() {
     <>
       {/* Skip to content link for accessibility */}
       <a href="#main-content" className="skip-link">Skip to main content</a>
-      
+
       <header className="topbar" role="banner">
         {/* Mobile Menu Button */}
-        <button 
-          className="mobile-menu-btn" 
+        <button
+          className="mobile-menu-btn"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           aria-label="Toggle menu"
         >
@@ -106,8 +107,8 @@ export default function Layout() {
           {/* Search */}
           <button className="search-btn" onClick={() => setSearchOpen(!searchOpen)} aria-label="Search">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="11" cy="11" r="8"/>
-              <path d="m21 21-4.35-4.35"/>
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.35-4.35" />
             </svg>
           </button>
           <a href="/#locations" className="nav-link desktop-only" onClick={(e) => handleHashLink(e, 'locations')}>Locations</a>
@@ -168,8 +169,8 @@ export default function Layout() {
           <div className="footer__column">
             <h4>Hours</h4>
             <div className="footer__hours">
-              <p><strong>Monday - Saturday</strong><br/>10:00 AM - 7:00 PM</p>
-              <p><strong>Sunday</strong><br/>11:00 AM - 5:00 PM</p>
+              <p><strong>Monday - Saturday</strong><br />10:00 AM - 7:00 PM</p>
+              <p><strong>Sunday</strong><br />11:00 AM - 5:00 PM</p>
               <p className="small">Hours may vary by location and season.</p>
             </div>
           </div>
@@ -193,9 +194,10 @@ export default function Layout() {
               <div>
                 <h4>Stay Sparkling</h4>
                 <p className="small" style={{ marginBottom: '12px' }}>Join our exclusive list for new arrivals and special offers.</p>
-                <form style={{ display: 'flex', gap: '8px' }} onSubmit={handleSubscribe}>
+                <form style={{ display: 'flex', gap: '8px', position: 'relative' }} onSubmit={handleSubscribe}>
                   <input
                     type="email"
+                    name="email"
                     required
                     value={subscribeEmail}
                     onChange={(e) => setSubscribeEmail(e.target.value)}
@@ -213,6 +215,23 @@ export default function Layout() {
                     onFocus={(e) => e.target.style.borderColor = 'var(--accent)'}
                     onBlur={(e) => e.target.style.borderColor = 'var(--border)'}
                   />
+                  <input
+                    type="text"
+                    name="website"
+                    value={subscribeHoneypot}
+                    onChange={(e) => setSubscribeHoneypot(e.target.value)}
+                    style={{
+                      position: 'absolute',
+                      left: '-9999px',
+                      opacity: 0,
+                      height: 0,
+                      width: 0,
+                      zIndex: -1
+                    }}
+                    tabIndex={-1}
+                    autoComplete="off"
+                    aria-hidden="true"
+                  />
                   <button
                     type="submit"
                     className="pill primary"
@@ -222,6 +241,7 @@ export default function Layout() {
                     {subscribeStatus.state === 'loading' ? '...' : 'Subscribe'}
                   </button>
                 </form>
+
                 {subscribeStatus.state === 'success' && (
                   <p className="small" style={{ marginTop: '10px', color: 'var(--accent)' }} role="status">
                     ✓ {subscribeStatus.message}

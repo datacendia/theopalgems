@@ -1,6 +1,5 @@
 // Netlify Function: unsubscribe
-// GET /api/unsubscribe?token=<uuid>  (preferred — from email link)
-// GET /api/unsubscribe?email=<addr>  (fallback if token is missing)
+// GET /api/unsubscribe?token=<uuid>  (token-based only — prevents abuse)
 // Marks subscriber as unsubscribed in Supabase, returns a branded HTML page.
 
 import { createClient } from '@supabase/supabase-js';
@@ -50,13 +49,13 @@ function send(status, html) {
 export default async (req) => {
   const url = new URL(req.url);
   const token = url.searchParams.get('token');
-  const email = url.searchParams.get('email');
 
-  if (!token && !email) {
+  // Token-only — no email fallback to prevent unsubscribe abuse
+  if (!token) {
     return send(400, htmlPage({
       title: 'Invalid link',
       heading: 'Invalid unsubscribe link',
-      message: 'This link is missing required information. If you continue to receive emails, please contact us.',
+      message: 'This link is missing required information. If you continue to receive emails, please reply to any email and ask to be removed.',
       isError: true,
     }));
   }
@@ -75,13 +74,12 @@ export default async (req) => {
       auth: { persistSession: false },
     });
 
-    const query = supabase
+    const { data, error } = await supabase
       .from('subscribers')
-      .update({ unsubscribed_at: new Date().toISOString() });
-
-    const { data, error } = token
-      ? await query.eq('unsubscribe_token', token).select('email').maybeSingle()
-      : await query.eq('email', email.toLowerCase()).select('email').maybeSingle();
+      .update({ unsubscribed_at: new Date().toISOString() })
+      .eq('unsubscribe_token', token)
+      .select('email')
+      .maybeSingle();
 
     if (error) {
       console.error('Unsubscribe error:', error);

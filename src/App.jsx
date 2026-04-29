@@ -609,7 +609,7 @@ export default function App() {
         <div className="hero-banner__overlay">
           <div className="hero-banner__content">
             <p className="hero-banner__eyebrow">Step Into The Opal Experience</p>
-            <h1 className="hero-banner__title">Welcome to the World of Gems</h1>
+            <h1 className="hero-banner__title">Welcome to the World of Opal Gems</h1>
             <p className="hero-banner__tagline">Elevated Diamonds, In Person</p>
             <div className="hero-banner__actions">
               <a className="pill primary" href="#categories">Shop Now</a>
