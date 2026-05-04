@@ -34,8 +34,14 @@ export default function AdminProducts() {
       setLocationFilter('All');
       setEditing(null);
 
-      // Always clear and reseed from kiraProducts to stay in sync with live site
-      await clearProducts(category);
+      // Load existing products; only seed from kiraProducts if database is empty
+      const existing = await getProducts(category);
+      if (existing.length > 0) {
+        setProducts(existing);
+        setLoading(false);
+        return;
+      }
+
       const items = kiraProducts
         .filter(p => p.category === category)
         .map(p => ({
@@ -58,6 +64,31 @@ export default function AdminProducts() {
     };
     load();
   }, [category]);
+
+  const handleResyncFromKira = async () => {
+    if (!window.confirm('This will DELETE all current products in this category and reseed from the master kiraProducts list. Continue?')) return;
+    setLoading(true);
+    await clearProducts(category);
+    const items = kiraProducts
+      .filter(p => p.category === category)
+      .map(p => ({
+        id: `${category}-${p.name}`,
+        name: p.description,
+        image: p.link,
+        sku: p.name,
+        location: 'opal-grand',
+        price: '',
+        price_num: 0,
+        ctw: '',
+        gold: '',
+        diamond: '',
+        cert: '',
+        qty: 1,
+      }));
+    const seeded = await seedProducts(category, items);
+    setProducts(seeded);
+    setLoading(false);
+  };
 
   const locations = ['All', ...new Set(products.map(p => p.location))];
   const filtered = products.filter(p => {
@@ -221,10 +252,16 @@ export default function AdminProducts() {
           <h1>{config.plural}</h1>
           <p className="admin-page__subtitle">{products.length} {config.plural.toLowerCase()} in inventory</p>
         </div>
-        <button onClick={handleNew} className="admin-btn admin-btn--primary">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          Add {config.singular}
-        </button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button onClick={handleResyncFromKira} className="admin-btn admin-btn--ghost" title="Reset to master kiraProducts list (deletes current edits)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+            Resync from Kira
+          </button>
+          <button onClick={handleNew} className="admin-btn admin-btn--primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add {config.singular}
+          </button>
+        </div>
       </div>
 
       <div className="admin-toolbar">

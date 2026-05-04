@@ -30,6 +30,7 @@ const AdminPhotos = lazy(() => import('./admin/AdminPhotos.jsx'));
 const AdminTestimonials = lazy(() => import('./admin/AdminTestimonials.jsx'));
 const AdminSettings = lazy(() => import('./admin/AdminSettings.jsx'));
 const AdminProducts = lazy(() => import('./admin/AdminProducts.jsx'));
+const AdminSubscribers = lazy(() => import('./admin/AdminSubscribers.jsx'));
 
 function PageFallback() {
   return (
@@ -55,6 +56,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
             <Route path="/admin/sections" element={<AdminSections />} />
             <Route path="/admin/photos" element={<AdminPhotos />} />
             <Route path="/admin/testimonials" element={<AdminTestimonials />} />
+            <Route path="/admin/subscribers" element={<AdminSubscribers />} />
             <Route path="/admin/settings" element={<AdminSettings />} />
           </Route>
 

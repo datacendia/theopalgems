@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getLocations, saveLocation, deleteLocation } from './api';
+import { getLocations, saveLocation, deleteLocation, uploadPhoto } from './api';
 
 const emptyLocation = {
   key: '',
@@ -18,10 +18,27 @@ export default function AdminLocations() {
   const [locations, setLocations] = useState([]);
   const [editing, setEditing] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState(null);
 
   useEffect(() => {
     getLocations().then(setLocations);
   }, []);
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploadError(null);
+    setUploading(true);
+    try {
+      const url = await uploadPhoto(file);
+      setEditing(prev => ({ ...prev, hotelImage: url }));
+    } catch (err) {
+      setUploadError(err.message || 'Upload failed');
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const handleNew = () => {
     setEditing({ ...emptyLocation, key: 'location-' + Date.now() });
@@ -129,19 +146,26 @@ export default function AdminLocations() {
             </div>
 
             <div className="admin-field">
-              <label>Hotel Image Path</label>
+              <label>Hotel Image</label>
               <div className="admin-image-upload">
                 {editing.hotelImage && (
                   <div className="admin-image-preview">
                     <img src={editing.hotelImage} alt="Hotel" />
                   </div>
                 )}
-                <input
-                  type="text"
-                  value={editing.hotelImage}
-                  onChange={(e) => setEditing({ ...editing, hotelImage: e.target.value })}
-                  placeholder="/assets/hotels/hotel-name.PNG"
-                />
+                <div className="admin-image-upload__controls">
+                  <input
+                    type="text"
+                    value={editing.hotelImage}
+                    onChange={(e) => setEditing({ ...editing, hotelImage: e.target.value })}
+                    placeholder="Image URL or upload below"
+                  />
+                  <label className={`admin-btn admin-btn--outline admin-btn--sm ${uploading ? 'admin-btn--disabled' : ''}`}>
+                    {uploading ? 'Uploading...' : 'Upload'}
+                    <input type="file" accept="image/*" onChange={handleImageUpload} hidden disabled={uploading} />
+                  </label>
+                </div>
+                {uploadError && <p style={{ color: '#c44', fontSize: 13, marginTop: 6 }}>{uploadError}</p>}
               </div>
             </div>
 

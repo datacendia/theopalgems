@@ -1,5 +1,14 @@
 import React, { useState } from 'react';
-import { getAdminPassword, setAdminPassword } from './api';
+import {
+  getAdminPassword,
+  setAdminPassword,
+  getWatches,
+  getLocations,
+  getPhotos,
+  getSections,
+  getProducts,
+  getSubscribers,
+} from './api';
 
 export default function AdminSettings() {
   const [currentPass, setCurrentPass] = useState('');
@@ -31,53 +40,77 @@ export default function AdminSettings() {
     setConfirmPass('');
   };
 
-  const handleExportData = () => {
-    const data = {};
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key.startsWith('admin_')) {
-        data[key] = localStorage.getItem(key);
-      }
+  const [exporting, setExporting] = useState(false);
+
+  const handleExportData = async () => {
+    setMessage(null);
+    setExporting(true);
+    try {
+      const [watches, locations, photos, sections, necklaces, rings, earrings, bracelets, subscribers] = await Promise.all([
+        getWatches(),
+        getLocations(),
+        getPhotos(),
+        getSections(),
+        getProducts('necklaces'),
+        getProducts('rings'),
+        getProducts('earrings'),
+        getProducts('bracelets'),
+        getSubscribers().catch(() => []),
+      ]);
+
+      const backup = {
+        exported_at: new Date().toISOString(),
+        version: '1.1.0',
+        data: {
+          watches,
+          locations,
+          photos,
+          sections,
+          products: { necklaces, rings, earrings, bracelets },
+          subscribers,
+        },
+      };
+
+      const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `opalgems-backup-${new Date().toISOString().split('T')[0]}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      setMessage({ type: 'success', text: 'Backup downloaded successfully!' });
+    } catch (err) {
+      setMessage({ type: 'error', text: `Export failed: ${err.message}` });
+    } finally {
+      setExporting(false);
     }
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `opalgems-backup-${new Date().toISOString().split('T')[0]}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
   };
 
-  const handleImportData = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      try {
-        const data = JSON.parse(ev.target.result);
-        Object.entries(data).forEach(([key, value]) => {
-          localStorage.setItem(key, value);
-        });
-        setMessage({ type: 'success', text: 'Data imported successfully! Refresh to see changes.' });
-      } catch {
-        setMessage({ type: 'error', text: 'Invalid backup file.' });
-      }
-    };
-    reader.readAsText(file);
-    e.target.value = '';
-  };
-
-  const handleResetData = () => {
-    if (!window.confirm('Are you sure you want to reset ALL data to defaults? This cannot be undone.')) return;
-    const keys = [];
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key.startsWith('admin_') && key !== 'admin_token' && key !== 'admin_login_time') {
-        keys.push(key);
-      }
+  const handleExportSubscribersCsv = async () => {
+    setMessage(null);
+    try {
+      const rows = await getSubscribers();
+      const header = ['email', 'source', 'confirmed', 'created_at', 'unsubscribed_at'];
+      const escape = (v) => {
+        if (v == null) return '';
+        const s = String(v);
+        return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+      };
+      const csv = [
+        header.join(','),
+        ...rows.map(r => header.map(h => escape(r[h])).join(',')),
+      ].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `opalgems-subscribers-${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      setMessage({ type: 'success', text: 'Subscribers CSV downloaded.' });
+    } catch (err) {
+      setMessage({ type: 'error', text: `Export failed: ${err.message}` });
     }
-    keys.forEach(k => localStorage.removeItem(k));
-    setMessage({ type: 'success', text: 'All data reset to defaults. Refresh to see changes.' });
   };
 
   return (
@@ -117,22 +150,19 @@ export default function AdminSettings() {
 
         <div className="admin-card">
           <h3>Data Management</h3>
-          <p className="admin-card__hint">Export your data as a backup or import from a previous backup.</p>
+          <p className="admin-card__hint">Download a JSON snapshot of all Supabase data, or export the subscribers list as CSV.</p>
           <div className="admin-form" style={{ gap: 12 }}>
-            <button onClick={handleExportData} className="admin-btn admin-btn--outline admin-btn--full">
+            <button onClick={handleExportData} className="admin-btn admin-btn--outline admin-btn--full" disabled={exporting}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-              Export Backup
+              {exporting ? 'Exporting...' : 'Export Full Backup (JSON)'}
             </button>
-            <label className="admin-btn admin-btn--outline admin-btn--full" style={{ cursor: 'pointer', textAlign: 'center' }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-              Import Backup
-              <input type="file" accept=".json" onChange={handleImportData} hidden />
-            </label>
-            <hr style={{ border: 'none', borderTop: '1px solid #eee', margin: '8px 0' }} />
-            <button onClick={handleResetData} className="admin-btn admin-btn--danger-outline admin-btn--full">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
-              Reset All Data to Defaults
+            <button onClick={handleExportSubscribersCsv} className="admin-btn admin-btn--outline admin-btn--full">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Export Subscribers (CSV)
             </button>
+            <p className="admin-card__hint" style={{ marginTop: 8, fontSize: 12 }}>
+              <strong>Note:</strong> Restoring backups is best done directly in your Supabase dashboard for safety.
+            </p>
           </div>
         </div>
       </div>
@@ -143,11 +173,15 @@ export default function AdminSettings() {
         <div className="admin-info-grid">
           <div className="admin-info-item">
             <span className="admin-info-label">Platform</span>
-            <span className="admin-info-value">GoDaddy Hosting</span>
+            <span className="admin-info-value">Netlify</span>
           </div>
           <div className="admin-info-item">
             <span className="admin-info-label">Data Storage</span>
-            <span className="admin-info-value">Browser Local Storage</span>
+            <span className="admin-info-value">Supabase (Postgres + Storage)</span>
+          </div>
+          <div className="admin-info-item">
+            <span className="admin-info-label">Email Service</span>
+            <span className="admin-info-value">Resend</span>
           </div>
           <div className="admin-info-item">
             <span className="admin-info-label">Admin Panel</span>
@@ -155,7 +189,7 @@ export default function AdminSettings() {
           </div>
           <div className="admin-info-item">
             <span className="admin-info-label">Version</span>
-            <span className="admin-info-value">1.0.0</span>
+            <span className="admin-info-value">1.1.0</span>
           </div>
         </div>
       </div>

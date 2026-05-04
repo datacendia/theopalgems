@@ -7,6 +7,8 @@
 import { supabase } from '../lib/supabaseClient.js';
 import defaultWatchesData from '../data/watches.js';
 
+// Legacy fallback password for local dev when ADMIN_PASSWORD env var isn't set.
+// Production must set ADMIN_PASSWORD on Netlify; the server endpoint will use that.
 const DEFAULT_PASSWORD = 'opalgems2024';
 
 // Retry configuration
@@ -61,11 +63,40 @@ function isOnline() {
   return navigator.onLine;
 }
 
-// ── Auth (localStorage session only — no user data stored here) ──
-export function adminLogin(password) {
+// ── Auth ──
+// Primary path: server-side verification via /api/admin-login (requires ADMIN_PASSWORD + ADMIN_JWT_SECRET on Netlify)
+// Fallback (local dev only): client-side password check using DEFAULT_PASSWORD or stored override
+//
+// Token format from server: <payloadB64>.<sigB64>
+// Token format from local fallback: local:<base64>
+
+export async function adminLogin(password) {
+  // Try server-side first
+  try {
+    const res = await fetch('/api/admin-login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password }),
+    });
+    if (res.ok) {
+      const { token, expiresAt } = await res.json();
+      localStorage.setItem('admin_token', token);
+      localStorage.setItem('admin_login_time', Date.now().toString());
+      if (expiresAt) localStorage.setItem('admin_token_exp', String(expiresAt));
+      return true;
+    }
+    if (res.status === 401) return false;
+    // Otherwise fall through to local check (e.g. server not configured during dev)
+  } catch (err) {
+    console.warn('admin-login server call failed, falling back to local check:', err);
+  }
+
+  // Local dev fallback
   if (password === getAdminPassword()) {
-    localStorage.setItem('admin_token', btoa(Date.now() + ':' + password));
+    const fallback = 'local:' + btoa(Date.now() + ':' + password);
+    localStorage.setItem('admin_token', fallback);
     localStorage.setItem('admin_login_time', Date.now().toString());
+    localStorage.setItem('admin_token_exp', String(Date.now() + 24 * 60 * 60 * 1000));
     return true;
   }
   return false;
@@ -74,16 +105,30 @@ export function adminLogin(password) {
 export function adminLogout() {
   localStorage.removeItem('admin_token');
   localStorage.removeItem('admin_login_time');
+  localStorage.removeItem('admin_token_exp');
 }
 
 export function isAdminLoggedIn() {
   const token = localStorage.getItem('admin_token');
-  const loginTime = parseInt(localStorage.getItem('admin_login_time') || '0');
-  if (!token || Date.now() - loginTime > 24 * 60 * 60 * 1000) {
+  const exp = parseInt(localStorage.getItem('admin_token_exp') || '0', 10);
+  if (!token) return false;
+  if (exp && Date.now() > exp) {
     adminLogout();
     return false;
   }
+  // Legacy fallback: if no exp recorded but old login_time exists, honour 24h window
+  if (!exp) {
+    const loginTime = parseInt(localStorage.getItem('admin_login_time') || '0', 10);
+    if (!loginTime || Date.now() - loginTime > 24 * 60 * 60 * 1000) {
+      adminLogout();
+      return false;
+    }
+  }
   return true;
+}
+
+export function getAdminToken() {
+  return localStorage.getItem('admin_token');
 }
 
 export function getAdminPassword() {
@@ -430,6 +475,25 @@ export async function deletePhoto(id) {
   }
 }
 
+// ── Subscribers ──
+export async function getSubscribers() {
+  const { data, error } = await supabase
+    .from('subscribers')
+    .select('email, source, confirmed, created_at, unsubscribed_at')
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+  return data || [];
+}
+
+export async function deleteSubscriber(email) {
+  const { error } = await supabase
+    .from('subscribers')
+    .delete()
+    .eq('email', email);
+  if (error) throw error;
+  return getSubscribers();
+}
+
 // ── Stats (for dashboard) ──
 export async function getDashboardStats() {
   const [watches, locations, photos, sections] = await Promise.all([
@@ -438,11 +502,24 @@ export async function getDashboardStats() {
     getPhotos(),
     getSections(),
   ]);
+
+  let subscribers = 0;
+  try {
+    const { count } = await supabase
+      .from('subscribers')
+      .select('*', { count: 'exact', head: true })
+      .eq('confirmed', true);
+    subscribers = count || 0;
+  } catch (e) {
+    console.warn('Failed to fetch subscriber count', e);
+  }
+
   return {
     watches: watches.length,
     locations: locations.length,
     photos: photos.length,
     testimonials: sections.testimonials?.length || 0,
     categories: sections.categories?.length || 0,
+    subscribers,
   };
 }

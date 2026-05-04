@@ -1,47 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { getDashboardStats, getProducts, clearProducts, seedProducts } from './api';
-import { kiraProducts } from '../data/kiraProducts';
-
-const CATEGORIES = ['necklaces', 'rings', 'earrings', 'bracelets'];
-
-async function syncCategoryIfStale(category) {
-  const expected = kiraProducts.filter(p => p.category === category);
-  const current = await getProducts(category);
-  // Check if current data matches kiraProducts by comparing IDs
-  const expectedIds = new Set(expected.map(p => `${category}-${p.name}`));
-  const isStale = current.length !== expected.length ||
-    current.some(p => !expectedIds.has(p.id));
-  if (!isStale) return current;
-  await clearProducts(category);
-  const items = expected.map(p => ({
-    id: `${category}-${p.name}`,
-    name: p.description,
-    image: p.link,
-    sku: p.name,
-    location: 'opal-grand',
-    price: '',
-    price_num: 0,
-    ctw: '',
-    gold: '',
-    diamond: '',
-    cert: '',
-    qty: 1,
-  }));
-  return seedProducts(category, items);
-}
+import { getDashboardStats, getProducts } from './api';
 
 export default function AdminDashboard() {
-  const [stats, setStats] = useState({ watches: 0, locations: 0, photos: 0, testimonials: 0, categories: 0, necklaces: 0, rings: 0, earrings: 0, bracelets: 0 });
+  const [stats, setStats] = useState({ watches: 0, locations: 0, photos: 0, testimonials: 0, categories: 0, necklaces: 0, rings: 0, earrings: 0, bracelets: 0, subscribers: 0 });
 
   useEffect(() => {
     const load = async () => {
       const [base, necklaces, rings, earrings, bracelets] = await Promise.all([
         getDashboardStats(),
-        syncCategoryIfStale('necklaces'),
-        syncCategoryIfStale('rings'),
-        syncCategoryIfStale('earrings'),
-        syncCategoryIfStale('bracelets'),
+        getProducts('necklaces'),
+        getProducts('rings'),
+        getProducts('earrings'),
+        getProducts('bracelets'),
       ]);
       setStats({ ...base, necklaces: necklaces.length, rings: rings.length, earrings: earrings.length, bracelets: bracelets.length });
     };
@@ -57,6 +28,7 @@ export default function AdminDashboard() {
     { label: 'Locations', count: stats.locations, path: '/admin/locations', color: '#5b8a72', icon: 'map' },
     { label: 'Photos', count: stats.photos, path: '/admin/photos', color: '#7b6cb5', icon: 'image' },
     { label: 'Testimonials', count: stats.testimonials, path: '/admin/testimonials', color: '#c47a5a', icon: 'message' },
+    { label: 'Subscribers', count: stats.subscribers, path: '/admin/subscribers', color: '#5a8ac4', icon: 'users' },
   ];
 
   return (
@@ -92,6 +64,10 @@ export default function AdminDashboard() {
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/></svg>
               Edit Homepage
             </Link>
+            <a href="https://calendly.com/event_types/user/me" target="_blank" rel="noopener noreferrer" className="admin-btn admin-btn--outline">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              View Bookings (Calendly)
+            </a>
             <a href="/" target="_blank" rel="noopener noreferrer" className="admin-btn admin-btn--ghost">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
               View Live Site

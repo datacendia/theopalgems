@@ -9,19 +9,23 @@ export default function AdminLogin() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
-    setTimeout(() => {
-      if (adminLogin(password)) {
+    try {
+      const ok = await adminLogin(password);
+      if (ok) {
         navigate('/admin/dashboard');
       } else {
         setError('Invalid password. Please try again.');
         setLoading(false);
       }
-    }, 600);
+    } catch (err) {
+      setError('Sign-in failed. Please try again.');
+      setLoading(false);
+    }
   };
 
   return (
