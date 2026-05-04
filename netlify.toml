@@ -2,7 +2,7 @@
   publish = "dist"
   # Install Playwright's Chromium (required by scripts/prerender.mjs) before building.
   # --with-deps pulls in the system libraries Chromium needs on Netlify's Linux builders.
-  command = "npx playwright install chromium --with-deps && npm run build"
+  command = "npx playwright install chromium && npm run build"
   functions = "netlify/functions"
 
 [build.environment]
