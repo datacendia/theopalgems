@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { getProducts, seedProducts, saveProduct, deleteProduct, clearProducts } from './api';
+import { getProducts, seedProducts, saveProduct, deleteProduct, clearProducts, uploadPhoto } from './api';
 import { kiraProducts } from '../data/kiraProducts';
 
 const categoryConfig = {
@@ -26,6 +26,8 @@ export default function AdminProducts() {
   const [locationFilter, setLocationFilter] = useState('All');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState(null);
 
   useEffect(() => {
     const load = async () => {
@@ -130,12 +132,18 @@ export default function AdminProducts() {
     setShowDeleteConfirm(null);
   };
 
-  const handleImagePreview = (e) => {
+  const handleImagePreview = async (e) => {
     const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (ev) => setEditing(prev => ({ ...prev, image: ev.target.result }));
-      reader.readAsDataURL(file);
+    if (!file) return;
+    setUploadError(null);
+    setUploading(true);
+    try {
+      const url = await uploadPhoto(file);
+      setEditing(prev => ({ ...prev, image: url }));
+    } catch (err) {
+      setUploadError(err.message || 'Upload failed');
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -225,12 +233,13 @@ export default function AdminProducts() {
                   </div>
                 )}
                 <div className="admin-image-upload__controls">
-                  <input type="text" value={editing.image} onChange={(e) => setEditing({ ...editing, image: e.target.value })} placeholder="/assets/image.jpg" />
-                  <label className="admin-btn admin-btn--outline admin-btn--sm">
-                    Upload
-                    <input type="file" accept="image/*" onChange={handleImagePreview} hidden />
+                  <input type="text" value={editing.image} onChange={(e) => setEditing({ ...editing, image: e.target.value })} placeholder="Image URL or upload below" />
+                  <label className={`admin-btn admin-btn--outline admin-btn--sm ${uploading ? 'admin-btn--disabled' : ''}`}>
+                    {uploading ? 'Uploading...' : 'Upload'}
+                    <input type="file" accept="image/*" onChange={handleImagePreview} hidden disabled={uploading} />
                   </label>
                 </div>
+                {uploadError && <p style={{ color: '#c44', fontSize: 13, marginTop: 6 }}>{uploadError}</p>}
               </div>
             </div>
 

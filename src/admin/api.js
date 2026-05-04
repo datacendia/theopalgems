@@ -64,11 +64,10 @@ function isOnline() {
 }
 
 // ── Auth ──
-// Primary path: server-side verification via /api/admin-login (requires ADMIN_PASSWORD + ADMIN_JWT_SECRET on Netlify)
-// Fallback (local dev only): client-side password check using DEFAULT_PASSWORD or stored override
-//
-// Token format from server: <payloadB64>.<sigB64>
-// Token format from local fallback: local:<base64>
+// Server-side verification via /api/admin-login (requires ADMIN_PASSWORD + ADMIN_JWT_SECRET on Netlify).
+// In dev mode (vite dev server) we allow a local-password fallback so you can work without
+// running Netlify Functions locally. In production builds the fallback is disabled — login
+// requires a successful response from /api/admin-login.
 
 export async function adminLogin(password) {
   // Try server-side first
@@ -86,13 +85,14 @@ export async function adminLogin(password) {
       return true;
     }
     if (res.status === 401) return false;
-    // Otherwise fall through to local check (e.g. server not configured during dev)
+    // Other status (server misconfig, 500, etc.): fall through only in dev mode
   } catch (err) {
-    console.warn('admin-login server call failed, falling back to local check:', err);
+    console.warn('admin-login server call failed:', err);
   }
 
-  // Local dev fallback
-  if (password === getAdminPassword()) {
+  // Local dev fallback — only available when running `npm run dev` (Vite dev server).
+  // Disabled entirely in production builds.
+  if (import.meta.env.DEV && password === getAdminPassword()) {
     const fallback = 'local:' + btoa(Date.now() + ':' + password);
     localStorage.setItem('admin_token', fallback);
     localStorage.setItem('admin_login_time', Date.now().toString());

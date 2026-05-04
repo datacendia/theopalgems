@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
-import { isAdminLoggedIn, adminLogout, getDashboardStats } from './api';
+import { isAdminLoggedIn, adminLogout } from './api';
 import { ErrorProvider } from './ErrorContext';
 import './admin.css';
 

@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import {
-  getAdminPassword,
-  setAdminPassword,
   getWatches,
   getLocations,
   getPhotos,
@@ -11,35 +9,7 @@ import {
 } from './api';
 
 export default function AdminSettings() {
-  const [currentPass, setCurrentPass] = useState('');
-  const [newPass, setNewPass] = useState('');
-  const [confirmPass, setConfirmPass] = useState('');
   const [message, setMessage] = useState(null);
-
-  const handleChangePassword = (e) => {
-    e.preventDefault();
-    setMessage(null);
-
-    if (currentPass !== getAdminPassword()) {
-      setMessage({ type: 'error', text: 'Current password is incorrect.' });
-      return;
-    }
-    if (newPass.length < 6) {
-      setMessage({ type: 'error', text: 'New password must be at least 6 characters.' });
-      return;
-    }
-    if (newPass !== confirmPass) {
-      setMessage({ type: 'error', text: 'New passwords do not match.' });
-      return;
-    }
-
-    setAdminPassword(newPass);
-    setMessage({ type: 'success', text: 'Password changed successfully!' });
-    setCurrentPass('');
-    setNewPass('');
-    setConfirmPass('');
-  };
-
   const [exporting, setExporting] = useState(false);
 
   const handleExportData = async () => {
@@ -130,22 +100,23 @@ export default function AdminSettings() {
 
       <div className="admin-grid-2">
         <div className="admin-card">
-          <h3>Change Password</h3>
-          <form onSubmit={handleChangePassword} className="admin-form">
-            <div className="admin-field">
-              <label>Current Password</label>
-              <input type="password" value={currentPass} onChange={(e) => setCurrentPass(e.target.value)} required />
-            </div>
-            <div className="admin-field">
-              <label>New Password</label>
-              <input type="password" value={newPass} onChange={(e) => setNewPass(e.target.value)} placeholder="Min 6 characters" required />
-            </div>
-            <div className="admin-field">
-              <label>Confirm New Password</label>
-              <input type="password" value={confirmPass} onChange={(e) => setConfirmPass(e.target.value)} required />
-            </div>
-            <button type="submit" className="admin-btn admin-btn--primary">Update Password</button>
-          </form>
+          <h3>Admin Password</h3>
+          <p className="admin-card__hint" style={{ marginBottom: 16 }}>
+            Your admin password is managed as a server-side secret for security.
+            It cannot be changed from this panel.
+          </p>
+          <div style={{ background: '#f8f8f8', borderLeft: '3px solid #c9a96e', padding: '14px 18px', fontSize: 14, lineHeight: 1.6 }}>
+            <strong>To change your password:</strong>
+            <ol style={{ marginTop: 8, marginBottom: 0, paddingLeft: 18 }}>
+              <li>Sign in to your Netlify dashboard</li>
+              <li>Go to <em>Project configuration → Environment variables</em></li>
+              <li>Edit the <code style={{ background: '#fff', padding: '2px 6px', borderRadius: 3 }}>ADMIN_PASSWORD</code> value</li>
+              <li>Trigger a redeploy from the <em>Deploys</em> tab</li>
+            </ol>
+          </div>
+          <p className="admin-card__hint" style={{ marginTop: 12, fontSize: 12 }}>
+            <strong>Tip:</strong> Use a long random password (16+ characters) and store it in a password manager.
+          </p>
         </div>
 
         <div className="admin-card">
