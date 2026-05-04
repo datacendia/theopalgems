@@ -9,28 +9,59 @@ import LocationPage from './pages/LocationPage.jsx';
 import AboutPage from './pages/AboutPage.jsx';
 import './styles.css';
 
+// Wraps a dynamic import so that if the browser tries to load a stale
+// chunk that no longer exists on the new deploy, we do one hard reload
+// to pick up the fresh index.html with current hashes.
+// Guarded by sessionStorage so we never loop.
+function lazyWithReload(factory) {
+  return lazy(async () => {
+    try {
+      return await factory();
+    } catch (err) {
+      const key = '__chunk_reloaded__';
+      const message = String(err?.message || '');
+      const isChunkError =
+        message.includes('Failed to fetch dynamically imported module') ||
+        message.includes('Failed to load module script') ||
+        message.includes('error loading dynamically imported module');
+      if (isChunkError && !sessionStorage.getItem(key)) {
+        sessionStorage.setItem(key, '1');
+        window.location.reload();
+        // Return a placeholder — page is about to reload anyway
+        return { default: () => null };
+      }
+      throw err;
+    }
+  });
+}
+
+// Clear the reload guard on successful navigation
+if (typeof window !== 'undefined') {
+  window.addEventListener('load', () => sessionStorage.removeItem('__chunk_reloaded__'));
+}
+
 // Lazy-loaded public pages (not on first paint path)
-const CraftDiamondPage = lazy(() => import('./pages/CraftDiamondPage.jsx'));
-const LabVsNaturalPage = lazy(() => import('./pages/LabVsNaturalPage.jsx'));
-const FAQPage = lazy(() => import('./pages/FAQPage.jsx'));
-const BookingPage = lazy(() => import('./pages/BookingPage.jsx'));
-const SearchPage = lazy(() => import('./pages/SearchPage.jsx'));
-const PrivacyPolicyPage = lazy(() => import('./pages/PrivacyPolicyPage.jsx'));
-const TermsOfServicePage = lazy(() => import('./pages/TermsOfServicePage.jsx'));
-const NotFoundPage = lazy(() => import('./pages/NotFoundPage.jsx'));
+const CraftDiamondPage = lazyWithReload(() => import('./pages/CraftDiamondPage.jsx'));
+const LabVsNaturalPage = lazyWithReload(() => import('./pages/LabVsNaturalPage.jsx'));
+const FAQPage = lazyWithReload(() => import('./pages/FAQPage.jsx'));
+const BookingPage = lazyWithReload(() => import('./pages/BookingPage.jsx'));
+const SearchPage = lazyWithReload(() => import('./pages/SearchPage.jsx'));
+const PrivacyPolicyPage = lazyWithReload(() => import('./pages/PrivacyPolicyPage.jsx'));
+const TermsOfServicePage = lazyWithReload(() => import('./pages/TermsOfServicePage.jsx'));
+const NotFoundPage = lazyWithReload(() => import('./pages/NotFoundPage.jsx'));
 
 // Lazy-loaded admin (separate bundle — public visitors never download these)
-const AdminLogin = lazy(() => import('./admin/AdminLogin.jsx'));
-const AdminLayout = lazy(() => import('./admin/AdminLayout.jsx'));
-const AdminDashboard = lazy(() => import('./admin/AdminDashboard.jsx'));
-const AdminWatches = lazy(() => import('./admin/AdminWatches.jsx'));
-const AdminLocations = lazy(() => import('./admin/AdminLocations.jsx'));
-const AdminSections = lazy(() => import('./admin/AdminSections.jsx'));
-const AdminPhotos = lazy(() => import('./admin/AdminPhotos.jsx'));
-const AdminTestimonials = lazy(() => import('./admin/AdminTestimonials.jsx'));
-const AdminSettings = lazy(() => import('./admin/AdminSettings.jsx'));
-const AdminProducts = lazy(() => import('./admin/AdminProducts.jsx'));
-const AdminSubscribers = lazy(() => import('./admin/AdminSubscribers.jsx'));
+const AdminLogin = lazyWithReload(() => import('./admin/AdminLogin.jsx'));
+const AdminLayout = lazyWithReload(() => import('./admin/AdminLayout.jsx'));
+const AdminDashboard = lazyWithReload(() => import('./admin/AdminDashboard.jsx'));
+const AdminWatches = lazyWithReload(() => import('./admin/AdminWatches.jsx'));
+const AdminLocations = lazyWithReload(() => import('./admin/AdminLocations.jsx'));
+const AdminSections = lazyWithReload(() => import('./admin/AdminSections.jsx'));
+const AdminPhotos = lazyWithReload(() => import('./admin/AdminPhotos.jsx'));
+const AdminTestimonials = lazyWithReload(() => import('./admin/AdminTestimonials.jsx'));
+const AdminSettings = lazyWithReload(() => import('./admin/AdminSettings.jsx'));
+const AdminProducts = lazyWithReload(() => import('./admin/AdminProducts.jsx'));
+const AdminSubscribers = lazyWithReload(() => import('./admin/AdminSubscribers.jsx'));
 
 function PageFallback() {
   return (
