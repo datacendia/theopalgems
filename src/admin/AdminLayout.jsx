@@ -19,7 +19,6 @@ const navItems = [
   { path: '/admin/testimonials', label: 'Testimonials', icon: 'message' },
   { type: 'divider', label: 'Audience' },
   { path: '/admin/subscribers', label: 'Subscribers', icon: 'users' },
-  { path: '/admin/newsletter', label: 'Newsletter Drafter', icon: 'message' },
   { type: 'divider', label: 'System' },
   { path: '/admin/settings', label: 'Settings', icon: 'settings' },
 ];
