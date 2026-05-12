@@ -14,8 +14,30 @@ function formatDate(iso) {
   }
 }
 
+const REFERRAL_LABELS = {
+  'instagram': 'Instagram',
+  'google': 'Google',
+  'hotel-concierge': 'Hotel concierge',
+  'friend': 'Friend / referral',
+  'event': 'Event',
+  'other': 'Other',
+};
+const LOCATION_LABELS = {
+  'opal-grand': 'Opal Grand',
+  'opal-sol': 'Opal Sol',
+  'jupiter-beach': 'Jupiter Beach',
+  'multiple': 'Multiple',
+  'undecided': 'Undecided',
+};
+const INTENT_LABELS = {
+  'browsing': 'Browsing',
+  'looking-to-purchase': 'Looking to purchase',
+  'custom-piece': 'Custom piece',
+  'gift': 'Gift',
+};
+
 function downloadCsv(rows) {
-  const header = ['email', 'source', 'confirmed', 'created_at', 'unsubscribed_at'];
+  const header = ['email', 'source', 'confirmed', 'referral_source', 'location_interest', 'purchase_intent', 'survey_completed_at', 'created_at', 'unsubscribed_at'];
   const escape = (v) => {
     if (v == null) return '';
     const s = String(v);
@@ -62,7 +84,8 @@ export default function AdminSubscribers() {
     const confirmed = subscribers.filter(s => s.confirmed && !s.unsubscribed_at).length;
     const pending = subscribers.filter(s => !s.confirmed && !s.unsubscribed_at).length;
     const unsubscribed = subscribers.filter(s => s.unsubscribed_at).length;
-    return { total: subscribers.length, confirmed, pending, unsubscribed };
+    const surveyed = subscribers.filter(s => s.survey_completed_at).length;
+    return { total: subscribers.length, confirmed, pending, unsubscribed, surveyed };
   }, [subscribers]);
 
   const filtered = useMemo(() => {
@@ -96,7 +119,7 @@ export default function AdminSubscribers() {
       <div className="admin-page__header">
         <div>
           <h1>Subscribers</h1>
-          <p className="admin-page__subtitle">{stats.total} total · {stats.confirmed} confirmed · {stats.pending} pending · {stats.unsubscribed} unsubscribed</p>
+          <p className="admin-page__subtitle">{stats.total} total · {stats.confirmed} confirmed · {stats.pending} pending · {stats.unsubscribed} unsubscribed · {stats.surveyed} with profile data</p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <button
@@ -153,7 +176,9 @@ export default function AdminSubscribers() {
               <tr style={{ background: '#f8f8f8', borderBottom: '1px solid #eee' }}>
                 <th style={{ padding: 12, textAlign: 'left', fontSize: 13 }}>Email</th>
                 <th style={{ padding: 12, textAlign: 'left', fontSize: 13 }}>Status</th>
-                <th style={{ padding: 12, textAlign: 'left', fontSize: 13 }}>Source</th>
+                <th style={{ padding: 12, textAlign: 'left', fontSize: 13 }}>Found us via</th>
+                <th style={{ padding: 12, textAlign: 'left', fontSize: 13 }}>Boutique</th>
+                <th style={{ padding: 12, textAlign: 'left', fontSize: 13 }}>Intent</th>
                 <th style={{ padding: 12, textAlign: 'left', fontSize: 13 }}>Subscribed</th>
                 <th style={{ padding: 12, textAlign: 'left', fontSize: 13 }}>Unsubscribed</th>
                 <th style={{ padding: 12, textAlign: 'right', fontSize: 13 }}>Actions</th>
@@ -164,7 +189,9 @@ export default function AdminSubscribers() {
                 <tr key={s.email} style={{ borderBottom: '1px solid #f0f0f0' }}>
                   <td style={{ padding: 12, fontSize: 14 }}>{s.email}</td>
                   <td style={{ padding: 12 }}>{statusBadge(s)}</td>
-                  <td style={{ padding: 12, fontSize: 13, color: '#666' }}>{s.source || '—'}</td>
+                  <td style={{ padding: 12, fontSize: 13, color: '#666' }}>{REFERRAL_LABELS[s.referral_source] || '—'}</td>
+                  <td style={{ padding: 12, fontSize: 13, color: '#666' }}>{LOCATION_LABELS[s.location_interest] || '—'}</td>
+                  <td style={{ padding: 12, fontSize: 13, color: '#666' }}>{INTENT_LABELS[s.purchase_intent] || '—'}</td>
                   <td style={{ padding: 12, fontSize: 13, color: '#666' }}>{formatDate(s.created_at)}</td>
                   <td style={{ padding: 12, fontSize: 13, color: '#666' }}>{formatDate(s.unsubscribed_at)}</td>
                   <td style={{ padding: 12, textAlign: 'right' }}>

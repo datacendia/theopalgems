@@ -184,11 +184,15 @@ export default async (req) => {
       // Non-fatal — they're confirmed, just the welcome email failed
     }
 
-    return send(200, htmlPage({
-      title: 'Confirmed',
-      heading: 'Subscription confirmed!',
-      message: `Thank you! <strong>${subscriber.email}</strong> has been added to our list. Check your inbox for a welcome message.`,
-    }));
+    // Redirect to the preferences page so we can capture richer profile info
+    // (referral source, location interest, purchase intent). The token doubles
+    // as the survey identifier; the welcome email is still on its way.
+    return new Response(null, {
+      status: 302,
+      headers: {
+        Location: `${SITE_URL}/preferences?token=${encodeURIComponent(token)}&confirmed=1`,
+      },
+    });
   } catch (err) {
     console.error('Confirmation exception:', err);
     return send(500, htmlPage({

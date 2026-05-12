@@ -39,3 +39,9 @@ coverage/
 
 # Playwright browsers (cached on Netlify anyway)
 ms-playwright/
+
+# Unrelated nested checkouts (workspace-only)
+/raineylaguna-crm/
+/raineylaguna-next/
+/raineylagunastudios/
+/vigiaV2/

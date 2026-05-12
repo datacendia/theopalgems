@@ -479,7 +479,7 @@ export async function deletePhoto(id) {
 export async function getSubscribers() {
   const { data, error } = await supabase
     .from('subscribers')
-    .select('email, source, confirmed, created_at, unsubscribed_at')
+    .select('email, source, confirmed, referral_source, location_interest, purchase_intent, survey_completed_at, created_at, unsubscribed_at')
     .order('created_at', { ascending: false });
   if (error) throw error;
   return data || [];

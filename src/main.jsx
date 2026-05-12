@@ -49,6 +49,7 @@ const SearchPage = lazyWithReload(() => import('./pages/SearchPage.jsx'));
 const PrivacyPolicyPage = lazyWithReload(() => import('./pages/PrivacyPolicyPage.jsx'));
 const TermsOfServicePage = lazyWithReload(() => import('./pages/TermsOfServicePage.jsx'));
 const NotFoundPage = lazyWithReload(() => import('./pages/NotFoundPage.jsx'));
+const PreferencesPage = lazyWithReload(() => import('./pages/PreferencesPage.jsx'));
 
 // Lazy-loaded admin (separate bundle — public visitors never download these)
 const AdminLogin = lazyWithReload(() => import('./admin/AdminLogin.jsx'));
@@ -62,6 +63,7 @@ const AdminTestimonials = lazyWithReload(() => import('./admin/AdminTestimonials
 const AdminSettings = lazyWithReload(() => import('./admin/AdminSettings.jsx'));
 const AdminProducts = lazyWithReload(() => import('./admin/AdminProducts.jsx'));
 const AdminSubscribers = lazyWithReload(() => import('./admin/AdminSubscribers.jsx'));
+const AdminNewsletterDrafter = lazyWithReload(() => import('./admin/AdminNewsletterDrafter.jsx'));
 
 function PageFallback() {
   return (
@@ -88,6 +90,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
             <Route path="/admin/photos" element={<AdminPhotos />} />
             <Route path="/admin/testimonials" element={<AdminTestimonials />} />
             <Route path="/admin/subscribers" element={<AdminSubscribers />} />
+            <Route path="/admin/newsletter" element={<AdminNewsletterDrafter />} />
             <Route path="/admin/settings" element={<AdminSettings />} />
           </Route>
 
@@ -105,6 +108,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
             <Route path="/search" element={<SearchPage />} />
             <Route path="/privacy" element={<PrivacyPolicyPage />} />
             <Route path="/terms" element={<TermsOfServicePage />} />
+            <Route path="/preferences" element={<PreferencesPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>
