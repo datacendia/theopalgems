@@ -11,6 +11,7 @@
  */
 
 import { supabase } from './supabaseClient.js';
+import { mergeSections } from './defaultSiteContent.js';
 
 // Cache reads for the lifetime of the page so we don't refetch on every
 // component mount.
@@ -47,13 +48,21 @@ export async function getPublicLocations() {
 }
 
 // ── Homepage sections ──
+// Returns a fully-populated object (defaults merged with whatever the
+// admin has saved in Supabase). Public pages can rely on every key being
+// present without null-guarding every field.
 export async function getPublicSections() {
   return cached('sections', async () => {
-    const { data, error } = await supabase.from('sections').select('*');
-    if (error) throw error;
-    const result = {};
-    (data || []).forEach((row) => { result[row.key] = row.value; });
-    return result;
+    try {
+      const { data, error } = await supabase.from('sections').select('*');
+      if (error) throw error;
+      const overrides = {};
+      (data || []).forEach((row) => { overrides[row.key] = row.value; });
+      return mergeSections(overrides);
+    } catch (err) {
+      console.warn('getPublicSections failed, using defaults:', err);
+      return mergeSections({});
+    }
   });
 }
 

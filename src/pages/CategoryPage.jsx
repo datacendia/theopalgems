@@ -3,60 +3,8 @@ import { useParams, Link } from 'react-router-dom';
 import watches from '../data/watches.js';
 import { kiraProducts } from '../data/kiraProducts.js';
 import SEO from '../components/SEO';
-
-const categoryInfo = {
-  necklaces: {
-    title: 'Necklaces',
-    description: 'From delicate pendants to statement tennis necklaces, discover pieces that elevate every neckline.',
-    image: '/assets/category-necklaces.PNG'
-  },
-  rings: {
-    title: 'Rings',
-    description: 'Engagement rings, stackable bands, and cocktail rings crafted with exceptional diamonds.',
-    image: '/assets/Stacked_diamond_eternity_bands.PNG'
-  },
-  earrings: {
-    title: 'Earrings',
-    description: 'Studs, hoops, and drop earrings designed to catch the light and turn heads.',
-    image: '/assets/category-earrings.PNG'
-  },
-  bracelets: {
-    title: 'Bracelets',
-    description: 'Tennis bracelets, bangles, and chain bracelets that add sparkle to every gesture.',
-    image: '/assets/category-bracelets.PNG'
-  },
-  watches: {
-    title: 'Watches',
-    description: 'Luxury timepieces that blend precision craftsmanship with timeless elegance.',
-    image: '/assets/watch_category.PNG'
-  }
-};
-
-const locations = [
-  {
-    key: 'opal-grand',
-    name: 'Opal Grand',
-    city: 'Delray Beach, Florida',
-    description: 'Beachfront boutique inside Opal Grand Resort. Same-day try-ons after check-in.',
-    image: '/assets/hotels/opal-grand.PNG'
-  },
-  {
-    key: 'opal-sol',
-    name: 'Opal Sol',
-    city: 'Clearwater Beach, Florida',
-    description: 'A sister boutique within the Opal Collection portfolio.',
-    image: '/assets/hotels/opal-sol.PNG'
-  },
-  {
-    key: 'jupiter-beach',
-    name: 'Jupiter Beach Resort & Spa',
-    city: 'Jupiter, Florida',
-    description: 'Steps from the sand with spa-adjacent showcases and relaxed fittings.',
-    image: '/assets/hotels/jupiter-beach.PNG'
-  }
-];
-
-const watchBrands = ['All', 'Rolex', 'Audemars Piguet', 'Cartier', 'Patek Philippe'];
+import { getPublicSections, getPublicLocations } from '../lib/publicData';
+import { defaultSections } from '../lib/defaultSiteContent';
 
 const WHATSAPP_NUMBER = '+15612519560';
 
@@ -148,9 +96,36 @@ function ProductModal({ product, onClose }) {
 
 export default function CategoryPage() {
   const { category } = useParams();
-  const info = categoryInfo[category] || categoryInfo.necklaces;
   const [brandFilter, setBrandFilter] = useState('All');
   const [selectedProduct, setSelectedProduct] = useState(null);
+  // Live CMS data — fall back to in-memory defaults until Supabase resolves.
+  const [categoryPages, setCategoryPages] = useState(defaultSections.categoryPages);
+  const [watchBrands, setWatchBrands] = useState(defaultSections.watchBrands);
+  const [locations, setLocations] = useState([
+    { key: 'opal-grand', name: 'Opal Grand', city: 'Delray Beach, Florida', description: 'Beachfront boutique inside Opal Grand Resort. Same-day try-ons after check-in.', image: '/assets/hotels/opal-grand.PNG' },
+    { key: 'opal-sol', name: 'Opal Sol', city: 'Clearwater Beach, Florida', description: 'A sister boutique within the Opal Collection portfolio.', image: '/assets/hotels/opal-sol.PNG' },
+    { key: 'jupiter-beach', name: 'Jupiter Beach Resort & Spa', city: 'Jupiter, Florida', description: 'Steps from the sand with spa-adjacent showcases and relaxed fittings.', image: '/assets/hotels/jupiter-beach.PNG' },
+  ]);
+
+  useEffect(() => {
+    getPublicSections().then((s) => {
+      if (s.categoryPages) setCategoryPages(s.categoryPages);
+      if (Array.isArray(s.watchBrands) && s.watchBrands.length) setWatchBrands(s.watchBrands);
+    });
+    getPublicLocations().then((locs) => {
+      if (locs && locs.length) {
+        setLocations(locs.map((l) => ({
+          key: l.key,
+          name: l.name,
+          city: l.city,
+          description: l.description,
+          image: l.hotelImage || l.image || l.hotel_image || '',
+        })));
+      }
+    });
+  }, []);
+
+  const info = categoryPages?.[category] || categoryPages?.necklaces || defaultSections.categoryPages.necklaces;
 
   const filteredWatches = brandFilter === 'All' ? watches : watches.filter(w => w.brand === brandFilter);
 

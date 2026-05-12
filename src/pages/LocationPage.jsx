@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import watches from '../data/watches.js';
 import { locationCuratedProducts } from '../data/locationCuratedProducts.js';
 import SEO from '../components/SEO';
+import { getPublicLocations } from '../lib/publicData';
 
 const locationInfo = {
   'opal-grand': {
@@ -52,9 +53,37 @@ const brands = ['All', 'Rolex', 'Audemars Piguet', 'Cartier', 'Patek Philippe'];
 
 export default function LocationPage() {
   const { locationId, category } = useParams();
-  const info = locationInfo[locationId] || locationInfo['opal-grand'];
+  const fallback = locationInfo[locationId] || locationInfo['opal-grand'];
+  const [info, setInfo] = useState(fallback);
   const categoryRef = useRef(null);
   const [brandFilter, setBrandFilter] = useState('All');
+
+  // Live overrides from Admin → Locations. Falls back silently to the
+  // hardcoded `locationInfo` if the row is missing or the request fails.
+  useEffect(() => {
+    let active = true;
+    getPublicLocations()
+      .then((rows) => {
+        if (!active) return;
+        const row = (rows || []).find((r) => r.key === locationId);
+        if (!row) return;
+        setInfo({
+          name: row.name || fallback.name,
+          city: row.city || fallback.city,
+          address: row.address || fallback.address,
+          description: row.description || fallback.description,
+          longDescription: row.longDescription || row.long_description || fallback.longDescription,
+          hours: row.hours || fallback.hours,
+          phone: row.phone || fallback.phone,
+          mapUrl: row.mapUrl || row.map_url || fallback.mapUrl,
+          mapEmbed: row.mapEmbed || row.map_embed || fallback.mapEmbed,
+        });
+      })
+      .catch(() => {
+        /* keep fallback */
+      });
+    return () => { active = false; };
+  }, [locationId]);
   
   const selectedCategory = category ? categories.find(c => c.key === category) : null;
   const filteredWatches = brandFilter === 'All' ? watches : watches.filter(w => w.brand === brandFilter);

@@ -13,6 +13,7 @@
 
 import { supabase } from '../lib/supabaseClient.js';
 import defaultWatchesData from '../data/watches.js';
+import { defaultSections, mergeSections } from '../lib/defaultSiteContent.js';
 
 // ── Admin RPC helper ──
 // Server-authenticated database calls. The admin JWT is sent as a Bearer
@@ -367,30 +368,10 @@ export async function deleteLocation(key) {
 }
 
 // ── Homepage Sections ──
-const defaultSections = {
-  hero: { title: 'Elevated Diamonds, In Person', subtitle: 'Three boutiques across Florida\'s most iconic resort destinations.', image: '/assets/boutique-mood-lifestyle.jpg', ctaText: 'Book Appointment', ctaUrl: '/book' },
-  about: { title: 'A Family Legacy of Fine Jewelry', description: 'With over 30 years of expertise, Opal Gems brings you hand-selected diamonds and bespoke jewelry in the most exclusive resort settings in Florida.', ownerImage: '/assets/michelle_and_gill.jfif', ownerNames: 'Michelle & Gil', ownerTitle: 'Founders of Opal Gems' },
-  testimonials: [
-    { id: 't1', name: 'Sarah M.', location: 'Delray Beach', text: 'The personal attention was incredible. They helped me find the perfect anniversary gift.', rating: 5 },
-    { id: 't2', name: 'James R.', location: 'Jupiter', text: 'Outstanding selection and knowledgeable staff. A true luxury experience.', rating: 5 },
-    { id: 't3', name: 'Elena K.', location: 'Clearwater', text: 'I fell in love with their collection. The quality is unmatched.', rating: 5 }
-  ],
-  categories: [
-    { name: 'Necklaces', image: '/assets/category-necklaces.PNG' },
-    { name: 'Rings', image: '/assets/category-rings.PNG' },
-    { name: 'Earrings', image: '/assets/category-earrings.PNG' },
-    { name: 'Bracelets', image: '/assets/category-bracelets.PNG' },
-    { name: 'Watches', image: '/assets/category-watches.PNG' }
-  ],
-  showcase: [
-    { id: 's1', image: '/assets/four_piece_daimonds.PNG', alt: 'Diamond jewelry set' },
-    { id: 's2', image: '/assets/Stacked_diamond_eternity_bands.PNG', alt: 'Stacked diamond eternity bands' },
-    { id: 's3', image: '/assets/diamonds_loose.PNG', alt: 'Loose diamonds' },
-    { id: 's4', image: '/assets/Diamond_necklace.PNG', alt: 'Diamond necklace' },
-    { id: 's5', image: '/assets/diamond_rings_on_the_beach.PNG', alt: 'Diamond rings' },
-    { id: 's6', image: '/assets/daimond_strands.PNG', alt: 'Diamond strands' }
-  ]
-};
+// Default content lives in `src/lib/defaultSiteContent.js` so the public
+// site and the admin editor always agree on the shape of `sections`.
+// Re-export for any caller that needs to introspect the defaults.
+export { defaultSections };
 
 export async function getSections() {
   try {
@@ -398,13 +379,13 @@ export async function getSections() {
     if (data && data.length > 0) {
       const result = {};
       data.forEach((row) => { result[row.key] = row.value; });
-      return { ...defaultSections, ...result };
+      return mergeSections(result);
     }
   } catch (err) {
     console.warn('getSections failed, using defaults:', err);
   }
   // No client-side auto-seed. Use scripts/seed.mjs to populate sections once.
-  return defaultSections;
+  return mergeSections({});
 }
 
 export async function saveSections(sections) {

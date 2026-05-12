@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState, useRef, useCallback } from 'react'
 import { Link } from 'react-router-dom';
 import useScrollReveal from './hooks/useScrollReveal';
 import { getPublicLocations, getPublicSections, getPublicPhotos } from './lib/publicData';
+import { mergeSections } from './lib/defaultSiteContent';
 import SEO from './components/SEO';
 
 const locationMap = {};
@@ -394,14 +395,9 @@ export default function App() {
   const [sortBy, setSortBy] = useState('name');
   const [introPhase, setIntroPhase] = useState('visible');
   const [locations, setLocations] = useState([]);
-  const [testimonials, setTestimonials] = useState([]);
-  const [heroImage, setHeroImage] = useState('/assets/opal-lobby.jpg');
-  const [heroImages, setHeroImages] = useState([
-    '/assets/homepage-inspiration/WhatsApp Image 2026-04-17 at 11.01.33.jpeg',
-    '/assets/homepage-inspiration/stacked2.jpeg',
-    '/assets/homepage-inspiration/WhatsApp Image 2026-04-17 at 11.01.33 (1).jpeg'
-  ]);
-  const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
+  // Full sections object — starts as the in-memory defaults so the first
+  // paint has copy/images before the Supabase round-trip resolves.
+  const [sections, setSections] = useState(() => mergeSections({}));
   const [showcasePhotos, setShowcasePhotos] = useState([]);
   const heroRef = useRef(null);
 
@@ -423,14 +419,7 @@ export default function App() {
       setLocations(mapped);
       mapped.forEach(loc => { locationMap[loc.key] = loc; });
     });
-    getPublicSections().then(sections => {
-      setTestimonials((sections.testimonials || []).map(t => ({
-        quote: t.text || t.quote || '',
-        author: t.name || t.author || '',
-        location: t.location || '',
-      })));
-      if (sections.hero?.image) setHeroImage(sections.hero.image);
-    });
+    getPublicSections().then((s) => setSections(s));
   }, []);
 
   // Intro screen: show 3.6s, fade 0.8s, then remove
@@ -456,6 +445,16 @@ export default function App() {
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Derived UI state from sections (always populated thanks to mergeSections).
+  const heroImages = sections.hero?.images?.length
+    ? sections.hero.images
+    : [sections.hero?.image || '/assets/opal-lobby.jpg'];
+  const testimonials = (sections.testimonials || []).map((t) => ({
+    quote: t.text || t.quote || '',
+    author: t.name || t.author || '',
+    location: t.location || '',
+  }));
 
 
   useEffect(() => {
@@ -608,12 +607,16 @@ export default function App() {
         </div>
         <div className="hero-banner__overlay">
           <div className="hero-banner__content">
-            <p className="hero-banner__eyebrow">Step Into The Opal Experience</p>
-            <h1 className="hero-banner__title">Welcome to the World of Opal Gems</h1>
-            <p className="hero-banner__tagline">Elevated Diamonds, In Person</p>
+            <p className="hero-banner__eyebrow">{sections.hero?.eyebrow}</p>
+            <h1 className="hero-banner__title">{sections.hero?.title}</h1>
+            <p className="hero-banner__tagline">{sections.hero?.tagline}</p>
             <div className="hero-banner__actions">
-              <a className="pill primary" href="#categories">Shop Now</a>
-              <a className="pill ghost" href="#locations">Visit a Boutique</a>
+              {sections.hero?.ctaText && (
+                <a className="pill primary" href={sections.hero?.ctaUrl || '#categories'}>{sections.hero.ctaText}</a>
+              )}
+              {sections.hero?.secondaryCtaText && (
+                <a className="pill ghost" href={sections.hero?.secondaryCtaUrl || '#locations'}>{sections.hero.secondaryCtaText}</a>
+              )}
             </div>
           </div>
         </div>
@@ -624,31 +627,17 @@ export default function App() {
         <div className="image-grid">
           {/* Top row */}
           <div className="image-grid__top">
-            <img src="/assets/homepage-inspiration/lose.jpeg" alt="Diamond jewelry" className="image-grid__item image-grid__item--large" loading="lazy" decoding="async" />
-            <img src="/assets/homepage-inspiration/stacked.jpeg" alt="Stacked jewelry" className="image-grid__item image-grid__item--large" loading="lazy" decoding="async" />
+            <img src={sections.imageGrid?.topLeft?.src} alt={sections.imageGrid?.topLeft?.alt || ''} className="image-grid__item image-grid__item--large" loading="lazy" decoding="async" />
+            <img src={sections.imageGrid?.topRight?.src} alt={sections.imageGrid?.topRight?.alt || ''} className="image-grid__item image-grid__item--large" loading="lazy" decoding="async" />
           </div>
           {/* Bottom row - Category Selection */}
           <div className="image-grid__bottom">
-            <Link to="/category/necklaces" className="image-grid__item-wrapper">
-              <img src="/assets/homepage-inspiration/necklace.jpeg" alt="Necklaces" className="image-grid__item" loading="lazy" decoding="async" />
-              <span className="image-grid__label">Necklaces</span>
-            </Link>
-            <Link to="/category/earrings" className="image-grid__item-wrapper">
-              <img src="/assets/homepage-inspiration/earings.jpeg" alt="Earrings" className="image-grid__item" loading="lazy" decoding="async" />
-              <span className="image-grid__label">Earrings</span>
-            </Link>
-            <Link to="/category/bracelets" className="image-grid__item-wrapper">
-              <img src="/assets/homepage-inspiration/braclet.jpeg" alt="Bracelets" className="image-grid__item" loading="lazy" decoding="async" />
-              <span className="image-grid__label">Bracelets</span>
-            </Link>
-            <Link to="/category/rings" className="image-grid__item-wrapper">
-              <img src="/assets/homepage-inspiration/ring.jpeg" alt="Rings" className="image-grid__item" loading="lazy" decoding="async" />
-              <span className="image-grid__label">Rings</span>
-            </Link>
-            <Link to="/category/watches" className="image-grid__item-wrapper">
-              <img src="/assets/homepage-inspiration/watch.jpeg" alt="Watches" className="image-grid__item" loading="lazy" decoding="async" />
-              <span className="image-grid__label">Watches</span>
-            </Link>
+            {(sections.imageGrid?.bottom || []).map((tile) => (
+              <Link key={tile.key} to={`/category/${tile.key}`} className="image-grid__item-wrapper">
+                <img src={tile.image} alt={tile.label} className="image-grid__item" loading="lazy" decoding="async" />
+                <span className="image-grid__label">{tile.label}</span>
+              </Link>
+            ))}
           </div>
         </div>
       </section>
@@ -657,20 +646,18 @@ export default function App() {
       <section className="reveal">
         <div className="crafted-section crafted-section--simple">
           <div className="crafted-image-wrapper">
-            <img src="/assets/crafted-left.jpeg" alt="Jewelry showcase" className="crafted-image" loading="lazy" decoding="async" />
-            <img src="/assets/crafted-right.jpeg" alt="Diamond pieces" className="crafted-image" loading="lazy" decoding="async" />
+            <img src={sections.crafted?.imageLeft} alt="Jewelry showcase" className="crafted-image" loading="lazy" decoding="async" />
+            <img src={sections.crafted?.imageRight} alt="Diamond pieces" className="crafted-image" loading="lazy" decoding="async" />
           </div>
           <div className="crafted-content-wrapper">
             <div className="crafted-content">
-              <h2 className="crafted-title">
-                CRAFTED FOR EVERY OCCASION
-              </h2>
-              <p className="crafted-subtitle">
-                From timeless classics to modern statements
-              </p>
-              <Link to="/category/rings" className="pill primary crafted-cta">
-                Shop All Collections
-              </Link>
+              <h2 className="crafted-title">{sections.crafted?.title}</h2>
+              <p className="crafted-subtitle">{sections.crafted?.subtitle}</p>
+              {sections.crafted?.ctaText && (
+                <Link to={sections.crafted?.ctaUrl || '/category/rings'} className="pill primary crafted-cta">
+                  {sections.crafted.ctaText}
+                </Link>
+              )}
             </div>
           </div>
         </div>
@@ -681,30 +668,26 @@ export default function App() {
         {/* Partnership */}
         <section className="section reveal" id="partnership">
           <div className="section__header" style={{ textAlign: 'center', maxWidth: '700px', margin: '0 auto 48px' }}>
-            <p className="eyebrow">Our Partnership</p>
-            <h2 className="shimmer-text">Perfect Vacation Partners</h2>
-            <p>
-              Opal Gems partners with Opal hotels to elevate and complete the perfect vacation. Fine jewelry, curated collections, and personalized service — all steps from the sand. Because the best souvenirs are the ones that sparkle.
-            </p>
+            <p className="eyebrow">{sections.partnership?.eyebrow}</p>
+            <h2 className="shimmer-text">{sections.partnership?.title}</h2>
+            <p>{sections.partnership?.body}</p>
           </div>
         </section>
 
         {/* Full-Width Carousel */}
         <section className="full-width-carousel">
           <div className="carousel-track">
-            <img src="/assets/homepage-inspiration/WhatsApp Image 2026-04-17 at 11.01.33 (1).jpeg" alt="Jewelry showcase" loading="lazy" decoding="async" />
-            <img src="/assets/homepage-inspiration/WhatsApp Image 2026-04-17 at 11.01.33 (3).jpeg" alt="Diamond pieces" loading="lazy" decoding="async" />
-            <img src="/assets/homepage-inspiration/WhatsApp Image 2026-04-17 at 11.01.33.jpeg" alt="Jewelry collection" loading="lazy" decoding="async" />
-            <img src="/assets/homepage-inspiration/stacked2.jpeg" alt="Elegant jewelry" loading="lazy" decoding="async" />
-            <img src="/assets/homepage-inspiration/lose.jpeg" alt="Diamond rings" loading="lazy" decoding="async" />
+            {(sections.carousel?.images || []).map((img, idx) => (
+              <img key={idx} src={img.src} alt={img.alt || ''} loading="lazy" decoding="async" />
+            ))}
           </div>
         </section>
 
         {/* Testimonials */}
         <section className="section section--panel reveal" id="testimonials">
           <div className="section__header" style={{ textAlign: 'center', maxWidth: '600px', margin: '0 auto 48px' }}>
-            <p className="eyebrow">What Our Guests Say</p>
-            <h2>Unforgettable experiences.</h2>
+            <p className="eyebrow">{sections.testimonialsHeader?.eyebrow}</p>
+            <h2>{sections.testimonialsHeader?.title}</h2>
           </div>
           <div className="testimonials-grid stagger-children">
             {testimonials.map((t, idx) => (
@@ -721,18 +704,18 @@ export default function App() {
             <div className="reviews-header">
               <div className="reviews-rating">
                 <span className="reviews-stars">★★★★★</span>
-                <span className="reviews-score">4.9</span>
+                <span className="reviews-score">{sections.reviews?.score}</span>
               </div>
-              <span className="reviews-count">Based on 127 reviews</span>
+              <span className="reviews-count">{sections.reviews?.count}</span>
             </div>
           </div>
         </section>
 
         <section className="section reveal" id="locations">
           <div className="section__header" style={{ textAlign: 'center', maxWidth: '700px', margin: '0 auto 48px' }}>
-            <p className="eyebrow">Locations</p>
-            <h2>Opal hotel boutiques.</h2>
-            <p className="small">Visit us in-resort for private styling and secure checkout.</p>
+            <p className="eyebrow">{sections.locationsHeader?.eyebrow}</p>
+            <h2>{sections.locationsHeader?.title}</h2>
+            <p className="small">{sections.locationsHeader?.subtitle}</p>
           </div>
           <div className="locations-grid" id="locations-grid">
             {locations.map((loc) => (
