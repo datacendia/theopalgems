@@ -65,6 +65,9 @@ export default function SEO({
       <meta name="description" content={description} />
       <link rel="canonical" href={url} />
       {noIndex && <meta name="robots" content="noindex, nofollow" />}
+      {/* On private/token-bearing pages, prevent the URL (which may contain
+          a token query param) from leaking via the Referer header. */}
+      {noIndex && <meta name="referrer" content="strict-origin" />}
 
       {/* Open Graph */}
       <meta property="og:type" content={type} />

@@ -35,6 +35,34 @@ function json(status, body, origin = '') {
   return new Response(JSON.stringify(body), { status, headers: corsHeaders(origin) });
 }
 
+// In-memory rate limiter (per Netlify Function instance).
+// 30 requests per IP per hour. Mitigates a malicious actor who has obtained
+// a valid token from spamming garbage. Best-effort: serverless instances
+// reset between cold starts, but the cap is enough to slow abuse.
+const RATE_LIMIT_MAX = 30;
+const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
+const _ipHits = new Map();
+
+function rateLimit(ip) {
+  if (!ip) return false;
+  const now = Date.now();
+  const entry = _ipHits.get(ip);
+  if (!entry || now - entry.start > RATE_LIMIT_WINDOW_MS) {
+    _ipHits.set(ip, { start: now, count: 1 });
+    return false;
+  }
+  entry.count += 1;
+  return entry.count > RATE_LIMIT_MAX;
+}
+
+function clientIp(req) {
+  return (
+    req.headers.get('x-nf-client-connection-ip') ||
+    (req.headers.get('x-forwarded-for') || '').split(',')[0].trim() ||
+    'unknown'
+  );
+}
+
 function sanitizeEnum(value, allowed) {
   if (value == null || value === '') return null;
   if (typeof value !== 'string') return undefined; // signals "invalid"
@@ -51,6 +79,10 @@ export default async (req) => {
 
   if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
     return json(500, { error: 'Service unavailable' }, origin);
+  }
+
+  if (rateLimit(clientIp(req))) {
+    return json(429, { error: 'Too many requests. Please try again later.' }, origin);
   }
 
   let payload;

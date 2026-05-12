@@ -141,13 +141,16 @@ async function prerender() {
         try { window.localStorage.setItem('prerender', '1'); } catch {}
       });
 
-      await page.goto(url, { waitUntil: 'networkidle', timeout: 30000 });
+      // Use 'domcontentloaded' instead of 'networkidle' so that pages which
+      // load third-party widgets (e.g. /book → Calendly) don't time out
+      // waiting for someone else's CDN to go quiet.
+      await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
       // Allow helmet to flush and any async data fetches to settle.
       await page.waitForFunction(
         () => document.title && document.title.length > 0,
         { timeout: 15000 }
       ).catch(() => {});
-      await page.waitForTimeout(600);
+      await page.waitForTimeout(1500);
 
       const html = await page.content();
 

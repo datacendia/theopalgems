@@ -1,15 +1,51 @@
 /**
- * Admin API Service — Supabase backend
- * Auth token stored in localStorage (session only)
- * All data reads/writes go to Supabase
+ * Admin API Service
+ *
+ * All admin DATA reads/writes go through /api/admin-data, which verifies
+ * the admin JWT and uses the Supabase service key on the server side.
+ * Tables are locked down with RLS so the public anon key cannot bypass.
+ *
+ * Storage uploads (photos) still use the supabase client directly because
+ * Storage has its own bucket-level policies; ensure the GALLERY bucket is
+ * configured to allow only authenticated uploads or rotate to a server-side
+ * upload endpoint as a follow-up.
  */
 
 import { supabase } from '../lib/supabaseClient.js';
 import defaultWatchesData from '../data/watches.js';
 
-// Legacy fallback password for local dev when ADMIN_PASSWORD env var isn't set.
-// Production must set ADMIN_PASSWORD on Netlify; the server endpoint will use that.
-const DEFAULT_PASSWORD = 'opalgems2024';
+// ── Admin RPC helper ──
+// Server-authenticated database calls. The admin JWT is sent as a Bearer
+// token; the server verifies it before performing the requested action.
+async function adminFetch(body) {
+  const token = localStorage.getItem('admin_token');
+  if (!token) throw new Error('Not authenticated. Please log in again.');
+  const res = await fetch('/api/admin-data', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(body),
+  });
+  let parsed = null;
+  try { parsed = await res.json(); } catch { /* non-JSON response */ }
+  if (res.status === 401) {
+    // Session expired or invalid — clear and force re-login
+    localStorage.removeItem('admin_token');
+    localStorage.removeItem('admin_token_exp');
+    throw new Error('Your session has expired. Please log in again.');
+  }
+  if (!res.ok) {
+    throw new Error(parsed?.error || `Request failed (${res.status})`);
+  }
+  return parsed || {};
+}
+
+// Production must set ADMIN_PASSWORD on Netlify; the server endpoint validates against it.
+// For local dev, set localStorage.admin_password in DevTools to enable the dev-only
+// client fallback (gated by import.meta.env.DEV; tree-shaken from prod builds).
+const DEFAULT_PASSWORD = '';
 
 // Retry configuration
 const MAX_RETRIES = 3;
@@ -91,8 +127,10 @@ export async function adminLogin(password) {
   }
 
   // Local dev fallback — only available when running `npm run dev` (Vite dev server).
-  // Disabled entirely in production builds.
-  if (import.meta.env.DEV && password === getAdminPassword()) {
+  // Disabled entirely in production builds. Requires a non-empty admin_password to be
+  // set in localStorage; never matches an empty/missing password.
+  const devPassword = getAdminPassword();
+  if (import.meta.env.DEV && devPassword && password === devPassword) {
     const fallback = 'local:' + btoa(Date.now() + ':' + password);
     localStorage.setItem('admin_token', fallback);
     localStorage.setItem('admin_login_time', Date.now().toString());
@@ -152,29 +190,11 @@ export async function getWatches() {
         return defaultWatchesData;
       }
 
-      const { data, error } = await supabase.from('watches').select('*').order('brand');
-      
-      if (error) {
-        // Try offline fallback on error
-        const offlineData = offlineStorage.get('watches');
-        if (offlineData) {
-          console.warn('Using offline data due to connection error');
-          return offlineData;
-        }
-        throw error;
-      }
-      
+      const { data } = await adminFetch({ table: 'watches', action: 'select', orderBy: 'brand:asc' });
       if (!data || data.length === 0) {
-        // Seed on first load
-        const seeds = defaultWatchesData.map(w => ({
-          id: w.id, brand: w.brand, name: w.name, price: w.price,
-          description: w.description || '', image: w.image || '', url: w.url || ''
-        }));
-        await supabase.from('watches').upsert(seeds);
-        return seeds;
+        // Empty table — do NOT auto-seed from the client. Use scripts/seed.mjs.
+        return [];
       }
-      
-      // Save to offline storage for future use
       offlineStorage.set('watches', data);
       return data;
     } catch (error) {
@@ -196,12 +216,14 @@ export async function saveWatch(watch) {
         throw new Error('Watch ID, brand, and name are required');
       }
 
-      const result = await supabase.from('watches').upsert({
-        id: watch.id, brand: watch.brand, name: watch.name, price: watch.price,
-        description: watch.description || '', image: watch.image || '', url: watch.url || ''
+      await adminFetch({
+        table: 'watches',
+        action: 'upsert',
+        payload: {
+          id: watch.id, brand: watch.brand, name: watch.name, price: watch.price,
+          description: watch.description || '', image: watch.image || '', url: watch.url || '',
+        },
       });
-      
-      if (result.error) throw result.error;
       
       // Update offline storage
       const updated = await getWatches();
@@ -222,8 +244,7 @@ export async function deleteWatch(id) {
         throw new Error('Watch ID is required');
       }
 
-      const result = await supabase.from('watches').delete().eq('id', id);
-      if (result.error) throw result.error;
+      await adminFetch({ table: 'watches', action: 'delete', filter: { column: 'id', value: id } });
       
       // Update offline storage
       const updated = await getWatches();
@@ -239,12 +260,20 @@ export async function deleteWatch(id) {
 
 // ── Products (necklaces, rings, earrings, bracelets) ──
 export async function getProducts(category) {
-  const { data } = await supabase.from('products').select('*').eq('category', category);
+  const { data } = await adminFetch({
+    table: 'products',
+    action: 'select',
+    filter: { column: 'category', value: category },
+  });
   return data || [];
 }
 
 export async function clearProducts(category) {
-  await supabase.from('products').delete().eq('category', category);
+  await adminFetch({
+    table: 'products',
+    action: 'delete',
+    filter: { column: 'category', value: category },
+  });
 }
 
 const _seedingInProgress = {};
@@ -253,7 +282,7 @@ export async function seedProducts(category, items) {
   _seedingInProgress[category] = true;
   try {
     const rows = items.map(p => ({ ...p, category }));
-    await supabase.from('products').upsert(rows);
+    await adminFetch({ table: 'products', action: 'upsert', payload: rows });
     return getProducts(category);
   } finally {
     _seedingInProgress[category] = false;
@@ -261,12 +290,23 @@ export async function seedProducts(category, items) {
 }
 
 export async function saveProduct(category, product) {
-  await supabase.from('products').upsert({ ...product, category });
+  await adminFetch({
+    table: 'products',
+    action: 'upsert',
+    payload: { ...product, category },
+  });
   return getProducts(category);
 }
 
 export async function deleteProduct(category, id) {
-  await supabase.from('products').delete().eq('id', id).eq('category', category);
+  await adminFetch({
+    table: 'products',
+    action: 'delete',
+    filter: [
+      { column: 'id', value: id },
+      { column: 'category', value: category },
+    ],
+  });
   return getProducts(category);
 }
 
@@ -277,31 +317,52 @@ const defaultLocations = [
   { key: 'jupiter-beach', name: 'Jupiter Beach Resort & Spa', city: 'Jupiter, Florida', address: '5 North A1A, Jupiter, FL 33477', description: 'Steps from the sand with spa-adjacent showcases and relaxed fittings.', long_description: 'Nestled within the Jupiter Beach Resort & Spa, this boutique combines the serenity of a spa retreat with the excitement of fine jewelry discovery.', hours: 'Daily: 9am - 6pm', phone: '(561) 786-2751', hotel_image: '/assets/hotels/jupiter-beach.PNG', map_url: 'https://www.google.com/maps/search/?api=1&query=5+N+A1A+Jupiter+FL+33477', map_embed: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3556.2!2d-80.0583!3d26.9423!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjbCsDU2JzMyLjMiTiA4MMKwMDMnMjkuOSJX!5e0!3m2!1sen!2sus!4v1700000000000', status: 'active' }
 ];
 
+function mapLocationRow(l) {
+  return {
+    ...l,
+    hotelImage: l.hotel_image,
+    longDescription: l.long_description,
+    mapUrl: l.map_url,
+    mapEmbed: l.map_embed,
+  };
+}
+
 export async function getLocations() {
-  const { data, error } = await supabase.from('locations').select('*');
-  if (error || !data || data.length === 0) {
-    await supabase.from('locations').upsert(defaultLocations);
-    return defaultLocations.map(l => ({ ...l, hotelImage: l.hotel_image, longDescription: l.long_description, mapUrl: l.map_url, mapEmbed: l.map_embed }));
+  try {
+    const { data } = await adminFetch({ table: 'locations', action: 'select' });
+    if (data && data.length > 0) return data.map(mapLocationRow);
+  } catch (err) {
+    console.warn('getLocations failed, using defaults:', err);
   }
-  return data.map(l => ({ ...l, hotelImage: l.hotel_image, longDescription: l.long_description, mapUrl: l.map_url, mapEmbed: l.map_embed }));
+  // Fall back to in-memory defaults if the table is empty or the request failed.
+  // Seeding the database is a one-time admin operation; do not auto-write from the client.
+  return defaultLocations.map(mapLocationRow);
 }
 
 export async function saveLocation(location) {
-  await supabase.from('locations').upsert({
-    key: location.key, name: location.name, city: location.city,
-    address: location.address, description: location.description,
-    long_description: location.longDescription || location.long_description || '',
-    hours: location.hours || '', phone: location.phone || '',
-    hotel_image: location.hotelImage || location.hotel_image || '',
-    map_url: location.mapUrl || location.map_url || '',
-    map_embed: location.mapEmbed || location.map_embed || '',
-    status: location.status || 'active'
+  await adminFetch({
+    table: 'locations',
+    action: 'upsert',
+    payload: {
+      key: location.key, name: location.name, city: location.city,
+      address: location.address, description: location.description,
+      long_description: location.longDescription || location.long_description || '',
+      hours: location.hours || '', phone: location.phone || '',
+      hotel_image: location.hotelImage || location.hotel_image || '',
+      map_url: location.mapUrl || location.map_url || '',
+      map_embed: location.mapEmbed || location.map_embed || '',
+      status: location.status || 'active',
+    },
   });
   return getLocations();
 }
 
 export async function deleteLocation(key) {
-  await supabase.from('locations').delete().eq('key', key);
+  await adminFetch({
+    table: 'locations',
+    action: 'delete',
+    filter: { column: 'key', value: key },
+  });
   return getLocations();
 }
 
@@ -332,33 +393,35 @@ const defaultSections = {
 };
 
 export async function getSections() {
-  const { data } = await supabase.from('sections').select('*');
-  if (!data || data.length === 0) {
-    const rows = Object.entries(defaultSections).map(([key, value]) => ({ key, value }));
-    await supabase.from('sections').upsert(rows);
-    return defaultSections;
+  try {
+    const { data } = await adminFetch({ table: 'sections', action: 'select' });
+    if (data && data.length > 0) {
+      const result = {};
+      data.forEach((row) => { result[row.key] = row.value; });
+      return { ...defaultSections, ...result };
+    }
+  } catch (err) {
+    console.warn('getSections failed, using defaults:', err);
   }
-  const result = {};
-  data.forEach(row => { result[row.key] = row.value; });
-  return { ...defaultSections, ...result };
+  // No client-side auto-seed. Use scripts/seed.mjs to populate sections once.
+  return defaultSections;
 }
 
 export async function saveSections(sections) {
   const rows = Object.entries(sections).map(([key, value]) => ({ key, value }));
-  await supabase.from('sections').upsert(rows);
+  await adminFetch({ table: 'sections', action: 'upsert', payload: rows });
   return sections;
 }
 
 export async function updateSection(key, value) {
-  await supabase.from('sections').upsert({ key, value });
+  await adminFetch({ table: 'sections', action: 'upsert', payload: { key, value } });
   return getSections();
 }
 
 // ── Photos / Gallery ──
 export async function getPhotos() {
   try {
-    const { data, error } = await supabase.from('photos').select('*').order('section');
-    if (error) throw error;
+    const { data } = await adminFetch({ table: 'photos', action: 'select', orderBy: 'section:asc' });
     return data || [];
   } catch (error) {
     console.error('Failed to fetch photos:', error);
@@ -430,14 +493,16 @@ export async function savePhoto(photo) {
       throw new Error('Photo URL and alt text are required');
     }
 
-    const { error } = await supabase.from('photos').upsert({ 
-      id: photo.id, 
-      src: photo.src, 
-      alt: photo.alt, 
-      section: photo.section || 'showcase' 
+    await adminFetch({
+      table: 'photos',
+      action: 'upsert',
+      payload: {
+        id: photo.id,
+        src: photo.src,
+        alt: photo.alt,
+        section: photo.section || 'showcase',
+      },
     });
-    
-    if (error) throw error;
     return getPhotos();
   } catch (error) {
     console.error('Failed to save photo:', error);
@@ -451,23 +516,36 @@ export async function deletePhoto(id) {
       throw new Error('Photo ID is required');
     }
 
-    // Get photo info before deleting
-    const { data: photo } = await supabase.from('photos').select('src').eq('id', id).single();
-    
+    // Get photo info before deleting (server-side, so it works regardless of RLS).
+    const { data: rows } = await adminFetch({
+      table: 'photos',
+      action: 'select',
+      select: 'src',
+      filter: { column: 'id', value: id },
+      limit: 1,
+    });
+    const photo = rows && rows[0];
+
     if (photo && photo.src) {
-      // Extract file path from URL
-      const url = new URL(photo.src);
-      const pathParts = url.pathname.split('/');
-      const filePath = pathParts.slice(pathParts.indexOf('photos')).join('/');
-      
-      // Delete from storage
-      await supabase.storage.from('GALLERY').remove([filePath]);
+      // Storage delete still uses the client. If the GALLERY bucket has open
+      // delete policies this is fine; tighten the bucket policy if you need
+      // server-side gating here too.
+      try {
+        const url = new URL(photo.src);
+        const pathParts = url.pathname.split('/');
+        const filePath = pathParts.slice(pathParts.indexOf('photos')).join('/');
+        await supabase.storage.from('GALLERY').remove([filePath]);
+      } catch (storageErr) {
+        console.warn('Storage delete failed (continuing with DB delete):', storageErr);
+      }
     }
 
-    // Delete from database
-    const { error } = await supabase.from('photos').delete().eq('id', id);
-    if (error) throw error;
-    
+    await adminFetch({
+      table: 'photos',
+      action: 'delete',
+      filter: { column: 'id', value: id },
+    });
+
     return getPhotos();
   } catch (error) {
     console.error('Failed to delete photo:', error);
@@ -477,20 +555,21 @@ export async function deletePhoto(id) {
 
 // ── Subscribers ──
 export async function getSubscribers() {
-  const { data, error } = await supabase
-    .from('subscribers')
-    .select('email, source, confirmed, referral_source, location_interest, purchase_intent, survey_completed_at, created_at, unsubscribed_at')
-    .order('created_at', { ascending: false });
-  if (error) throw error;
+  const { data } = await adminFetch({
+    table: 'subscribers',
+    action: 'select',
+    select: 'email, source, confirmed, referral_source, location_interest, purchase_intent, survey_completed_at, created_at, unsubscribed_at',
+    orderBy: 'created_at:desc',
+  });
   return data || [];
 }
 
 export async function deleteSubscriber(email) {
-  const { error } = await supabase
-    .from('subscribers')
-    .delete()
-    .eq('email', email);
-  if (error) throw error;
+  await adminFetch({
+    table: 'subscribers',
+    action: 'delete',
+    filter: { column: 'email', value: email },
+  });
   return getSubscribers();
 }
 
@@ -505,10 +584,11 @@ export async function getDashboardStats() {
 
   let subscribers = 0;
   try {
-    const { count } = await supabase
-      .from('subscribers')
-      .select('*', { count: 'exact', head: true })
-      .eq('confirmed', true);
+    const { count } = await adminFetch({
+      table: 'subscribers',
+      action: 'count',
+      filter: { column: 'confirmed', value: true },
+    });
     subscribers = count || 0;
   } catch (e) {
     console.warn('Failed to fetch subscriber count', e);

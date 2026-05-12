@@ -77,7 +77,7 @@ export default function PreferencesPage() {
   if (status.state === 'success') {
     return (
       <main className="container" style={{ paddingTop: 48, paddingBottom: 48, maxWidth: 600 }}>
-        <SEO title="Thank you · Opal Gems" noindex />
+        <SEO title="Thank you · Opal Gems" noIndex />
         <div className="section__header" style={{ textAlign: 'center' }}>
           <p className="eyebrow">Thank you</p>
           <h1 style={{ fontWeight: 400 }}>Your preferences are saved.</h1>
@@ -93,7 +93,7 @@ export default function PreferencesPage() {
 
   return (
     <main className="container" style={{ paddingTop: 48, paddingBottom: 48, maxWidth: 600 }}>
-      <SEO title="Your preferences · Opal Gems" noindex />
+      <SEO title="Your preferences · Opal Gems" noIndex />
 
       <div className="section__header">
         <p className="eyebrow">{justConfirmed ? 'Subscription confirmed' : 'Help us personalize'}</p>
