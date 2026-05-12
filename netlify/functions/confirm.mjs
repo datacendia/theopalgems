@@ -155,10 +155,11 @@ export default async (req) => {
       }));
     }
 
-    // Mark as confirmed
+    // Mark as confirmed and schedule survey email for 24h later
+    const surveyScheduledAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
     const { error: updateError } = await supabase
       .from('subscribers')
-      .update({ confirmed: true })
+      .update({ confirmed: true, survey_scheduled_at: surveyScheduledAt })
       .eq('unsubscribe_token', token);
 
     if (updateError) {
