@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useNavigate } from 'react-router-dom';
-import { getLocations } from './admin/api';
+import { getPublicLocations } from './lib/publicData';
 
 export default function Layout() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -36,7 +36,7 @@ export default function Layout() {
   };
 
   useEffect(() => {
-    getLocations().then(locs => setLocations(locs.map(loc => ({
+    getPublicLocations().then(locs => setLocations(locs.map(loc => ({
       key: loc.key, name: loc.name, city: loc.city, address: loc.address, phone: loc.phone,
     }))));
   }, []);

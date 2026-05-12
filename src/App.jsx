@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import useScrollReveal from './hooks/useScrollReveal';
-import { getLocations, getSections, getPhotos } from './admin/api';
+import { getPublicLocations, getPublicSections, getPublicPhotos } from './lib/publicData';
 import SEO from './components/SEO';
 
 const locationMap = {};
@@ -409,11 +409,11 @@ export default function App() {
 
   // Load live data from Supabase
   useEffect(() => {
-    getPhotos().then(photos => {
+    getPublicPhotos().then(photos => {
       const showcase = photos.filter(p => p.section === 'showcase');
       if (showcase.length > 0) setShowcasePhotos(showcase);
     });
-    getLocations().then(locs => {
+    getPublicLocations().then(locs => {
       const mapped = locs.map(loc => ({
         ...loc,
         status: loc.status || 'active',
@@ -423,7 +423,7 @@ export default function App() {
       setLocations(mapped);
       mapped.forEach(loc => { locationMap[loc.key] = loc; });
     });
-    getSections().then(sections => {
+    getPublicSections().then(sections => {
       setTestimonials((sections.testimonials || []).map(t => ({
         quote: t.text || t.quote || '',
         author: t.name || t.author || '',

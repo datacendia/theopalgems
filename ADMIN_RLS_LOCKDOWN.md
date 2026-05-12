@@ -18,55 +18,76 @@ every admin table.
 
 ---
 
+## Two policy patterns
+
+We have two kinds of admin tables:
+
+1. **Public-readable, admin-writable** — content displayed on the public site:
+   `watches`, `products`, `locations`, `sections`, `photos`, `testimonials`.
+   Anyone can SELECT; only the service key (Netlify Functions) can write.
+
+2. **Locked down completely** — sensitive data:
+   `subscribers`, `newsletter_campaigns`, `newsletter_sends`.
+   Nothing anon can do; everything goes through Netlify Functions.
+
+The service key always bypasses RLS, so server-side code keeps working in
+both cases.
+
 ## SQL — run in Supabase SQL Editor
 
 Run this once. Idempotent.
 
 ```sql
--- Subscribers (already locked down per SUBSCRIBE_SETUP.md, included for completeness)
+-- ── PUBLIC-READABLE TABLES ──
+-- Anyone can SELECT (so the marketing site works without a logged-in user),
+-- but no anon role can INSERT/UPDATE/DELETE. Admin writes go through
+-- /api/admin-data which uses the service key.
+
+do $$
+declare
+  t text;
+begin
+  for t in select unnest(array['watches','products','locations','sections','photos','testimonials']) loop
+    execute format('alter table public.%I enable row level security', t);
+    execute format('drop policy if exists "Public read"   on public.%I', t);
+    execute format('drop policy if exists "Block writes"  on public.%I', t);
+    -- Legacy single policy from earlier setup, drop if present
+    execute format('drop policy if exists "Service role only" on public.%I', t);
+
+    execute format('create policy "Public read"  on public.%I for select using (true)', t);
+    execute format('create policy "Block writes" on public.%I for all    using (false) with check (false)', t);
+  end loop;
+end$$;
+
+-- ── LOCKED-DOWN TABLES ──
+-- Nothing anon can do. Service key only.
+
 alter table public.subscribers enable row level security;
 drop policy if exists "Service role only" on public.subscribers;
-create policy "Service role only" on public.subscribers for all using (false);
+drop policy if exists "Public read" on public.subscribers;
+drop policy if exists "Block writes" on public.subscribers;
+create policy "Service role only" on public.subscribers for all using (false) with check (false);
 
--- Watches
-alter table public.watches enable row level security;
-drop policy if exists "Service role only" on public.watches;
-create policy "Service role only" on public.watches for all using (false);
-
--- Products (necklaces, rings, earrings, bracelets)
-alter table public.products enable row level security;
-drop policy if exists "Service role only" on public.products;
-create policy "Service role only" on public.products for all using (false);
-
--- Locations
-alter table public.locations enable row level security;
-drop policy if exists "Service role only" on public.locations;
-create policy "Service role only" on public.locations for all using (false);
-
--- Homepage sections
-alter table public.sections enable row level security;
-drop policy if exists "Service role only" on public.sections;
-create policy "Service role only" on public.sections for all using (false);
-
--- Photo gallery rows
-alter table public.photos enable row level security;
-drop policy if exists "Service role only" on public.photos;
-create policy "Service role only" on public.photos for all using (false);
-
--- Testimonials (if you have a separate table; safe to skip if testimonials live inside sections)
-alter table public.testimonials enable row level security;
-drop policy if exists "Service role only" on public.testimonials;
-create policy "Service role only" on public.testimonials for all using (false);
-
--- Newsletter campaigns + sends (if you ran the optional newsletter tables)
-alter table public.newsletter_campaigns enable row level security;
-drop policy if exists "Service role only" on public.newsletter_campaigns;
-create policy "Service role only" on public.newsletter_campaigns for all using (false);
-
-alter table public.newsletter_sends enable row level security;
-drop policy if exists "Service role only" on public.newsletter_sends;
-create policy "Service role only" on public.newsletter_sends for all using (false);
+-- Newsletter campaigns + sends (only relevant if you ran the optional tables)
+do $$
+begin
+  if to_regclass('public.newsletter_campaigns') is not null then
+    alter table public.newsletter_campaigns enable row level security;
+    drop policy if exists "Service role only" on public.newsletter_campaigns;
+    create policy "Service role only" on public.newsletter_campaigns for all using (false) with check (false);
+  end if;
+  if to_regclass('public.newsletter_sends') is not null then
+    alter table public.newsletter_sends enable row level security;
+    drop policy if exists "Service role only" on public.newsletter_sends;
+    create policy "Service role only" on public.newsletter_sends for all using (false) with check (false);
+  end if;
+end$$;
 ```
+
+> **If `testimonials` table doesn't exist**, the loop will fail. Either
+> create it first or remove `'testimonials'` from the array. Testimonials
+> currently live inside the `sections` table (`sections.testimonials`),
+> so a separate table may not be needed.
 
 ---
 
