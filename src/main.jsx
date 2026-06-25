@@ -50,6 +50,7 @@ const PrivacyPolicyPage = lazyWithReload(() => import('./pages/PrivacyPolicyPage
 const TermsOfServicePage = lazyWithReload(() => import('./pages/TermsOfServicePage.jsx'));
 const NotFoundPage = lazyWithReload(() => import('./pages/NotFoundPage.jsx'));
 const PreferencesPage = lazyWithReload(() => import('./pages/PreferencesPage.jsx'));
+const WarrantyRegisterPage = lazyWithReload(() => import('./pages/WarrantyRegisterPage.jsx'));
 
 // Lazy-loaded admin (separate bundle — public visitors never download these)
 const AdminLogin = lazyWithReload(() => import('./admin/AdminLogin.jsx'));
@@ -63,6 +64,7 @@ const AdminTestimonials = lazyWithReload(() => import('./admin/AdminTestimonials
 const AdminSettings = lazyWithReload(() => import('./admin/AdminSettings.jsx'));
 const AdminProducts = lazyWithReload(() => import('./admin/AdminProducts.jsx'));
 const AdminSubscribers = lazyWithReload(() => import('./admin/AdminSubscribers.jsx'));
+const AdminWarranties = lazyWithReload(() => import('./admin/AdminWarranties.jsx'));
 
 function PageFallback() {
   return (
@@ -89,6 +91,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
             <Route path="/admin/photos" element={<AdminPhotos />} />
             <Route path="/admin/testimonials" element={<AdminTestimonials />} />
             <Route path="/admin/subscribers" element={<AdminSubscribers />} />
+            <Route path="/admin/warranties" element={<AdminWarranties />} />
             <Route path="/admin/settings" element={<AdminSettings />} />
           </Route>
 
@@ -107,6 +110,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
             <Route path="/privacy" element={<PrivacyPolicyPage />} />
             <Route path="/terms" element={<TermsOfServicePage />} />
             <Route path="/preferences" element={<PreferencesPage />} />
+            <Route path="/warranty/register" element={<WarrantyRegisterPage />} />
+            <Route path="/warranty" element={<WarrantyRegisterPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>

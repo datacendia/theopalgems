@@ -554,6 +554,65 @@ export async function deleteSubscriber(email) {
   return getSubscribers();
 }
 
+// ── Warranty registrations ──
+export async function getWarrantyRegistrations() {
+  const { data } = await adminFetch({
+    table: 'warranty_registrations',
+    action: 'select',
+    orderBy: 'created_at:desc',
+  });
+  return data || [];
+}
+
+export async function updateWarrantyStatus(id, status) {
+  if (!id) throw new Error('Registration id is required');
+  const allowed = new Set(['pending', 'confirmed', 'archived']);
+  if (!allowed.has(status)) throw new Error('Invalid status');
+  await adminFetch({
+    table: 'warranty_registrations',
+    action: 'upsert',
+    payload: { id, status },
+  });
+  return getWarrantyRegistrations();
+}
+
+export async function deleteWarrantyRegistration(id) {
+  if (!id) throw new Error('Registration id is required');
+  await adminFetch({
+    table: 'warranty_registrations',
+    action: 'delete',
+    filter: { column: 'id', value: id },
+  });
+  return getWarrantyRegistrations();
+}
+
+// Editable purchase/item details (staff corrections after submission)
+const EDITABLE_WARRANTY_FIELDS = new Set([
+  'item_name', 'item_category', 'item_sku', 'item_serial',
+  'purchase_price', 'purchase_date', 'receipt_number',
+  'store_location', 'sales_associate',
+]);
+
+export async function updateWarrantyDetails(id, fields) {
+  if (!id) throw new Error('Registration id is required');
+  const payload = { id };
+  for (const [k, v] of Object.entries(fields || {})) {
+    if (!EDITABLE_WARRANTY_FIELDS.has(k)) continue;
+    if (k === 'purchase_price') {
+      const n = parseFloat(String(v).replace(/[^0-9.]/g, ''));
+      payload[k] = Number.isFinite(n) ? n : null;
+    } else {
+      payload[k] = v === '' ? null : v;
+    }
+  }
+  await adminFetch({
+    table: 'warranty_registrations',
+    action: 'upsert',
+    payload,
+  });
+  return getWarrantyRegistrations();
+}
+
 // ── Stats (for dashboard) ──
 export async function getDashboardStats() {
   const [watches, locations, photos, sections] = await Promise.all([

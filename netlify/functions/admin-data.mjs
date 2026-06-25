@@ -46,6 +46,7 @@ const ALLOWED_TABLES = new Set([
   'photos',
   'subscribers',
   'testimonials',
+  'warranty_registrations',
 ]);
 
 const ALLOWED_ACTIONS = new Set(['select', 'upsert', 'delete', 'count']);

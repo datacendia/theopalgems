@@ -7,6 +7,16 @@ dist
 # Local Netlify folder
 .netlify
 
+# Raw turntable videos (processed locally into 360 frames; not committed)
+/incoming_videos/
+/Whatsapp1/
+
+# Local-only matching tools / generated mappings (not committed)
+/stills_matcher.html
+/scripts/_*.json
+/_match_posters/
+/_matcher_imgs/
+
 assets-original-backup/
 
 # Build artifacts and caches
@@ -45,3 +55,23 @@ ms-playwright/
 /raineylaguna-next/
 /raineylagunastudios/
 /vigiaV2/
+
+# One-off Chrono24 scraping artifacts (not used by the deployed app)
+/chrono24_images/
+/chrono24_export_manu_*.csv
+/chrono24_scrape*.cjs
+/download_chrono_images.cjs
+/download_jupiter_products.cjs
+/fix_descriptions.cjs
+/fix_real_paths.cjs
+/import_chrono_watches.cjs
+/jupiter_products_local.json
+/rename_chrono_images.cjs
+/test_all.cjs
+/strategy-playbook.html
+
+# Business data & internal docs — keep off the public repo
+INVENTORY OPAL GRAND*.xlsx
+/require AI update/
+/require AI update.zip
+EMAIL_HANDOVER_CHECKLIST.md

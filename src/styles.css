@@ -612,6 +612,12 @@ a:hover { color: var(--accent); }
   overflow: hidden;
 }
 
+/* Show full piece (no cropping) for inventory photos, incl. tall portrait shots */
+.category-page .inventory-card .card__media img {
+  object-fit: contain;
+  padding: 8px;
+}
+
 .category-page .inventory-card .card__content {
   padding: 16px;
   flex: 1;
@@ -4097,6 +4103,56 @@ a:hover { color: var(--accent); }
   padding: 16px;
 }
 
+/* 360 / 180 spin viewer */
+.spin-viewer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
+}
+
+.spin-viewer:active {
+  cursor: grabbing;
+}
+
+.spin-viewer img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 16px;
+  pointer-events: none;
+}
+
+.spin-viewer__hint {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  pointer-events: none;
+  backdrop-filter: blur(4px);
+}
+
+.spin-viewer__loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-muted, #888);
+  font-size: 13px;
+}
+
 .product-modal__info h2 {
   font-family: 'Cormorant Garamond', Georgia, serif;
   font-size: 28px;
@@ -4365,3 +4421,863 @@ a:hover { color: var(--accent); }
 }
 
 .route-spinner{width:48px;height:48px;border-radius:50%;border:3px solid rgba(180,150,90,0.25);border-top-color:#b4965a;animation:spin 0.9s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+
+/* =============================================
+   WARRANTY REGISTRATION (public, mobile-first)
+   ============================================= */
+.warranty-page {
+  background: var(--bg);
+  min-height: 100vh;
+}
+
+.warranty-page__hero {
+  background: var(--panel);
+  padding: 56px 24px 40px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+}
+
+.warranty-page__hero-content {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.warranty-page__hero h1 {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: clamp(32px, 6vw, 48px);
+  font-weight: 400;
+  margin: 8px 0 16px;
+  letter-spacing: -0.01em;
+}
+
+.warranty-page__hero .lead {
+  color: var(--muted);
+  font-size: 16px;
+  line-height: 1.7;
+  margin: 0 auto;
+  max-width: 540px;
+}
+
+.warranty-page__container {
+  max-width: 720px;
+  padding-top: 32px;
+  padding-bottom: 64px;
+}
+
+.warranty-form {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  position: relative;
+}
+
+.warranty-form__section {
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 28px 24px;
+  box-shadow: var(--shadow);
+}
+
+.warranty-form__title {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 24px;
+  font-weight: 400;
+  margin: 0 0 4px;
+  color: var(--text);
+}
+
+.warranty-form__hint {
+  color: var(--muted);
+  font-size: 14px;
+  margin: 0 0 20px;
+}
+
+.warranty-form__field {
+  margin-bottom: 16px;
+}
+
+.warranty-form__field label {
+  display: block;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 500;
+  margin-bottom: 6px;
+  color: var(--muted);
+}
+
+.warranty-form__required {
+  color: var(--accent);
+  margin-left: 2px;
+}
+
+.warranty-form__optional {
+  color: var(--muted);
+  font-weight: 400;
+  font-size: 0.85em;
+  margin-left: 4px;
+}
+
+.warranty-form__field input,
+.warranty-form__field select,
+.warranty-form__field textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  background: #fff;
+  font-family: inherit;
+  font-size: 16px; /* 16px prevents iOS zoom on focus */
+  color: var(--text);
+  transition: border-color var(--transition);
+  -webkit-appearance: none;
+  appearance: none;
+  border-radius: 0;
+}
+
+.warranty-form__field select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%237a7a7a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 40px;
+}
+
+.warranty-form__field input:focus,
+.warranty-form__field select:focus,
+.warranty-form__field textarea:focus {
+  outline: none;
+  border-color: var(--text);
+}
+
+.warranty-form__field input.has-error,
+.warranty-form__field select.has-error,
+.warranty-form__field textarea.has-error {
+  border-color: #c0392b;
+  background-color: #fff8f7;
+}
+
+.warranty-form__field textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.warranty-form__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.warranty-form__row--3 {
+  grid-template-columns: 2fr 1fr 1fr;
+}
+
+.warranty-form__error {
+  background: #fff4f2;
+  border: 1px solid #f1c0b8;
+  color: #8a2a1c;
+  padding: 12px 16px;
+  font-size: 14px;
+}
+
+.warranty-form__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding-top: 8px;
+}
+
+.warranty-form__submit {
+  width: 100%;
+  max-width: 360px;
+  padding: 16px 28px;
+  font-size: 14px;
+  text-align: center;
+  justify-content: center;
+}
+
+.warranty-form__submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.warranty-form__legal {
+  color: var(--muted);
+  text-align: center;
+  max-width: 480px;
+  margin: 0;
+  font-size: 13px;
+}
+
+.warranty-form__legal a {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+/* Success state */
+.warranty-success {
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 56px 32px;
+  text-align: center;
+  box-shadow: var(--shadow);
+  margin: 32px auto;
+}
+
+.warranty-success__icon {
+  color: var(--accent);
+  display: inline-flex;
+  margin-bottom: 12px;
+}
+
+.warranty-success h1 {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: clamp(28px, 5vw, 40px);
+  font-weight: 400;
+  margin: 8px 0 16px;
+}
+
+.warranty-success__summary {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  padding: 20px 24px;
+  margin: 24px auto;
+  max-width: 420px;
+  text-align: left;
+}
+
+.warranty-success__summary p { margin: 4px 0; }
+
+.warranty-success__actions {
+  margin-top: 24px;
+  display: flex;
+  justify-content: center;
+}
+
+@media (max-width: 600px) {
+  .warranty-page__hero { padding: 40px 20px 32px; }
+  .warranty-page__container { padding-left: 16px; padding-right: 16px; }
+  .warranty-form__section { padding: 22px 18px; }
+  .warranty-form__row { grid-template-columns: 1fr; gap: 0; }
+  .warranty-form__row--3 { grid-template-columns: 1fr; }
+}
+
+/* =============================================
+   ADMIN WARRANTY QR GENERATOR
+   ============================================= */
+.warranty-qr-panel {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 24px;
+  align-items: start;
+}
+
+.warranty-qr-panel__form {
+  background: #fff;
+  border: 1px solid #eee;
+  padding: 24px;
+}
+
+.warranty-qr-panel__form h2 {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 22px;
+  font-weight: 400;
+  margin: 0 0 4px;
+}
+
+.warranty-qr-panel__hint {
+  color: var(--muted);
+  font-size: 14px;
+  margin: 0 0 20px;
+}
+
+.warranty-qr-panel__field {
+  margin-bottom: 14px;
+}
+
+.warranty-qr-panel__field label {
+  display: block;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 500;
+  margin-bottom: 6px;
+  color: var(--muted);
+}
+
+.warranty-qr-panel__field input,
+.warranty-qr-panel__field select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: inherit;
+  background: #fff;
+}
+
+.warranty-qr-panel__field input:focus,
+.warranty-qr-panel__field select:focus {
+  outline: none;
+  border-color: var(--text);
+}
+
+.warranty-qr-panel__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.warranty-qr-panel__actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+.warranty-qr-panel__preview {
+  position: sticky;
+  top: 20px;
+}
+
+.warranty-qr-card {
+  background: #fff;
+  border: 1px solid #ece6da;
+  padding: 28px 24px;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+
+.warranty-qr-card__brand {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  letter-spacing: 0.12em;
+  font-size: 18px;
+  font-weight: 500;
+  margin: 0 0 4px;
+  text-transform: uppercase;
+}
+
+.warranty-qr-card__title {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 20px;
+  font-weight: 400;
+  margin: 0 0 4px;
+}
+
+.warranty-qr-card__subtitle {
+  font-size: 12px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 18px;
+}
+
+.warranty-qr-card__qr {
+  display: inline-block;
+  padding: 12px;
+  border: 1px solid #ece6da;
+  background: #fff;
+}
+
+.warranty-qr-card__qr img {
+  display: block;
+  width: 260px;
+  height: 260px;
+}
+
+.warranty-qr-card__item {
+  margin: 16px 0 4px;
+  font-size: 15px;
+}
+
+.warranty-qr-card__loc {
+  color: var(--muted);
+  font-size: 13px;
+  margin: 0 0 12px;
+}
+
+.warranty-qr-card__url {
+  margin-top: 14px;
+  font-size: 11px;
+  color: var(--muted);
+  word-break: break-all;
+  line-height: 1.4;
+}
+
+/* Warranty detail modal */
+.admin-modal--wide {
+  max-width: 720px;
+  width: 92vw;
+}
+
+.warranty-detail__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 16px;
+  margin-bottom: 20px;
+}
+
+.warranty-detail__header h3 {
+  margin: 4px 0 4px;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-weight: 400;
+  font-size: 26px;
+}
+
+.warranty-detail__status select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  background: #fff;
+}
+
+.warranty-detail__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.warranty-detail__grid h4 {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--accent);
+  margin: 0 0 10px;
+}
+
+.warranty-detail__grid p {
+  margin: 0 0 6px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* ── Detail modal: editable purchase/item details ── */
+.warranty-detail__section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.warranty-edit-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px 18px;
+  margin-top: 8px;
+}
+
+.warranty-edit-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.warranty-edit-field span {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.warranty-edit-field input,
+.warranty-edit-field select {
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: #fff;
+  font-family: inherit;
+  font-size: 15px;
+  color: var(--text);
+}
+
+.warranty-edit-field input:focus,
+.warranty-edit-field select:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+@media (max-width: 900px) {
+  .warranty-qr-panel { grid-template-columns: 1fr; }
+  .warranty-qr-panel__preview { position: static; }
+  .warranty-detail__grid { grid-template-columns: 1fr; }
+}
+
+/* =============================================
+   WARRANTY — chips, toggles, stars, photo upload
+   ============================================= */
+
+/* Accent section background to visually distinguish the optional questions
+   from the required ones, without making them feel less important. */
+.warranty-form__section--accent {
+  background: linear-gradient(180deg, #fefcf8 0%, #fdfaf3 100%);
+  border-color: #ece6da;
+}
+
+.warranty-form__qlabel {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+
+.warranty-form__conditional {
+  border-left: 2px solid var(--accent);
+  padding-left: 16px;
+  margin: 4px 0 16px 4px;
+  background: rgba(255,255,255,0.5);
+  padding: 12px 16px;
+}
+
+/* ── Chips ── */
+.chip-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 16px;
+  font-family: inherit;
+  font-size: 14px;
+  letter-spacing: 0.01em;
+  background: #fff;
+  border: 1px solid #d9d1c1;
+  color: var(--text);
+  cursor: pointer;
+  border-radius: 999px;
+  transition: all 0.15s ease;
+  min-height: 40px; /* comfortable tap target */
+  -webkit-tap-highlight-color: transparent;
+}
+
+.chip:hover {
+  border-color: var(--text);
+}
+
+.chip--selected {
+  background: var(--text);
+  color: #fff;
+  border-color: var(--text);
+}
+
+.chip--selected:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+/* ── Toggles (iOS-style switch) ── */
+.toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  user-select: none;
+}
+
+.toggle:last-of-type {
+  border-bottom: none;
+}
+
+.toggle input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.toggle__copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.toggle__label {
+  font-size: 15px;
+  color: var(--text);
+  line-height: 1.4;
+}
+
+.toggle__hint {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.toggle__switch {
+  position: relative;
+  width: 48px;
+  height: 28px;
+  background: #d9d1c1;
+  border-radius: 999px;
+  transition: background 0.2s ease;
+  flex-shrink: 0;
+}
+
+.toggle__switch::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  transition: transform 0.2s ease;
+}
+
+.toggle input:checked + .toggle__switch {
+  background: var(--accent);
+}
+
+.toggle input:checked + .toggle__switch::after {
+  transform: translateX(20px);
+}
+
+.toggle input:focus-visible + .toggle__switch {
+  box-shadow: 0 0 0 3px rgba(184, 149, 110, 0.3);
+}
+
+/* ── Star rating ── */
+.star-rating {
+  display: inline-flex;
+  gap: 6px;
+}
+
+.star {
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  color: #d9d1c1;
+  transition: color 0.15s ease, transform 0.1s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.star:hover { transform: scale(1.05); }
+.star--on { color: var(--accent); }
+
+/* ── Photo upload ── */
+.photo-upload {
+  display: block;
+}
+
+.photo-upload__drop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 28px 16px;
+  border: 2px dashed #d9d1c1;
+  background: #fff;
+  color: var(--muted);
+  cursor: pointer;
+  text-align: center;
+  border-radius: 4px;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.photo-upload__drop:hover {
+  border-color: var(--accent);
+  background: #fefcf8;
+}
+
+.photo-upload__drop.is-uploading {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.photo-upload__drop input[type="file"] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+}
+
+.photo-upload__icon {
+  display: inline-flex;
+  color: var(--accent);
+}
+
+.photo-upload__label {
+  font-size: 14px;
+  color: var(--text);
+  font-weight: 500;
+}
+
+.photo-upload__hint {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.photo-upload__preview {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+}
+
+.photo-upload__preview img {
+  display: block;
+  max-width: 100%;
+  max-height: 260px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+.photo-upload__remove {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 6px 12px;
+  background: rgba(0,0,0,0.7);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+/* ── Admin: warranty insights strip ── */
+.warranty-insights {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.warranty-insights__stat {
+  background: #fff;
+  border: 1px solid #eee;
+  padding: 16px 18px;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 90px;
+}
+
+.warranty-insights__label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.warranty-insights__value {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 26px;
+  font-weight: 500;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  line-height: 1.1;
+}
+
+.warranty-insights__unit {
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.warranty-insights__sub {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.admin-stars {
+  display: inline-flex;
+  gap: 1px;
+  color: var(--accent, #b8956e);
+}
+
+
+/* ===== MP4 360 spin viewer (photo/video refresh) ===== */
+/* ── 360° Spin Viewer ── */
+.spin-viewer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 320px;
+  background: #0b0b0b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  touch-action: pan-y;
+  overflow: hidden;
+}
+.spin-viewer.is-dragging { cursor: grabbing; }
+.spin-viewer video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
+  user-select: none;
+}
+.spin-viewer__badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: rgba(0, 0, 0, 0.65);
+  color: #fff;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  padding: 4px 8px;
+  border-radius: 999px;
+  pointer-events: none;
+}
+.spin-viewer__hint {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  padding: 5px 12px;
+  border-radius: 999px;
+  pointer-events: none;
+  opacity: 0.9;
+  white-space: nowrap;
+  transition: opacity 0.3s ease;
+}
+.spin-viewer.is-dragging .spin-viewer__hint { opacity: 0; }
+
+/* 360° badge on category cards */
+.card__media { position: relative; }
+.card__spin-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.65);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  padding: 3px 7px;
+  border-radius: 999px;
+  pointer-events: none;
+  z-index: 2;
+}

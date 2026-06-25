@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import watches from '../data/watches.js';
 import { kiraProducts } from '../data/kiraProducts.js';
+import SpinViewer from '../components/SpinViewer';
 import SEO from '../components/SEO';
 import { getPublicSections, getPublicLocations } from '../lib/publicData';
 import { defaultSections } from '../lib/defaultSiteContent';
@@ -26,23 +27,28 @@ function ProductModal({ product, onClose }) {
   const bookLink = '/book';
 
   return (
-    <div className="modal" onClick={(e) => e.target === e.currentTarget && onClose()}>
+    <div className="modal" aria-hidden="false" onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div className="modal__dialog product-modal">
         <button className="close" onClick={onClose} aria-label="Close">×</button>
         <div className="product-modal__layout">
           <div className="product-modal__image">
-            <img
-              src={product.link || product.image}
-              alt={product.description || product.name}
-              onError={(e) => { e.currentTarget.src = '/assets/kira/KJ00061P.MX-3-21.jpg'; }}
-            />
+            {product.spin ? (
+              <SpinViewer
+                src={product.spin}
+                poster={product.image || product.link}
+                alt={product.description || product.name}
+              />
+            ) : (
+              <img
+                src={product.image || product.link}
+                alt={product.description || product.name}
+                onError={(e) => { e.currentTarget.src = '/assets/placeholder-dark.jpg'; }}
+              />
+            )}
           </div>
           <div className="product-modal__info">
             <p className="eyebrow">Our Collection</p>
             <h2>{product.description || product.name}</h2>
-            {product.name && product.name !== product.description && (
-              <p className="product-modal__sku">SKU: {product.name}</p>
-            )}
             <div className="product-modal__specs">
               {product.ctw && (
                 <div className="product-modal__spec">
@@ -220,14 +226,15 @@ export default function CategoryPage() {
             ) : (
               <div className="cards grid-4">
                 {filteredKiraProducts.map((product) => (
-                  <div key={product.name} className="card inventory-card" style={{ cursor: 'pointer' }} onClick={() => setSelectedProduct(product)}>
+                  <div key={product.sku || product.name} className="card inventory-card" style={{ cursor: 'pointer' }} onClick={() => setSelectedProduct(product)}>
                     <div className="card__media">
                       <img
-                        src={product.link}
+                        src={product.image || product.link}
                         alt={product.description}
                         loading="lazy"
-                        onError={(e) => { e.currentTarget.src = '/assets/kira/KJ00061P.MX-3-21.jpg'; }}
+                        onError={(e) => { e.currentTarget.src = '/assets/placeholder-dark.jpg'; }}
                       />
+                      {product.spin && <span className="card__spin-badge">360°</span>}
                     </div>
                     <div className="card__content" style={{ height: '140px', display: 'flex', flexDirection: 'column', padding: '12px' }}>
                       <div style={{ height: '40px', overflow: 'hidden', marginBottom: '8px' }}>
