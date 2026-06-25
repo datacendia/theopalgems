@@ -1,9 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import watches from '../data/watches.js';
-import { locationCuratedProducts } from '../data/locationCuratedProducts.js';
+import { kiraProducts } from '../data/kiraProducts.js';
+import { ProductCard, ProductModal } from '../components/ProductModal';
 import SEO from '../components/SEO';
 import { getPublicLocations } from '../lib/publicData';
+
+// Address-based Google Maps embed — works without an API key (the old
+// pre-baked `pb=` embeds used placeholder place-IDs and rendered blank/blue).
+function mapEmbedFor(address) {
+  return `https://maps.google.com/maps?q=${encodeURIComponent(address)}&z=15&output=embed`;
+}
 
 const locationInfo = {
   'opal-grand': {
@@ -15,7 +22,7 @@ const locationInfo = {
     hours: 'Daily: 10am - 7pm',
     phone: '(561) 274-3200',
     mapUrl: 'https://www.google.com/maps/search/?api=1&query=10+N+Ocean+Blvd+Delray+Beach+FL+33483',
-    mapEmbed: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3571.5!2d-80.073!3d26.4615!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x88d8e1c2e0c6e6f9%3A0x1234567890abcdef!2s10+N+Ocean+Blvd%2C+Delray+Beach%2C+FL+33483!5e0!3m2!1sen!2sus!4v1700000000000'
+    mapEmbed: mapEmbedFor('10 N Ocean Blvd, Delray Beach, FL 33483'),
   },
   'opal-sol': {
     name: 'Opal Sol',
@@ -26,7 +33,7 @@ const locationInfo = {
     hours: 'Daily: 10am - 8pm',
     phone: '(727) 229-8171',
     mapUrl: 'https://www.google.com/maps/search/?api=1&query=400+Coronado+Dr+Clearwater+Beach+FL+33767',
-    mapEmbed: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3519.8!2d-82.827!3d27.978!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x88c2f5e5e0c6e6f9%3A0x1234567890abcdef!2s400+Coronado+Dr%2C+Clearwater+Beach%2C+FL+33767!5e0!3m2!1sen!2sus!4v1700000000000'
+    mapEmbed: mapEmbedFor('400 Coronado Dr, Clearwater Beach, FL 33767'),
   },
   'jupiter-beach': {
     name: 'Jupiter Beach Resort & Spa',
@@ -37,19 +44,28 @@ const locationInfo = {
     hours: 'Daily: 9am - 6pm',
     phone: '(561) 786-2751',
     mapUrl: 'https://www.google.com/maps/search/?api=1&query=5+N+A1A+Jupiter+FL+33477',
-    mapEmbed: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3556.2!2d-80.0583!3d26.9423!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x88d8e1c2e0c6e6f9%3A0x1234567890abcdef!2s5+N+A1A%2C+Jupiter%2C+FL+33477!5e0!3m2!1sen!2sus!4v1700000000000'
+    mapEmbed: mapEmbedFor('5 N A1A, Jupiter, FL 33477'),
   }
 };
 
+// Clean black-background representative images for the "Explore all
+// collections" thumbnails (the old ones were inconsistent phone photos).
 const categories = [
-  { key: 'necklaces', name: 'Necklaces', image: '/assets/kira_individual_items_white/page02_item01.png', description: 'From delicate pendants to statement tennis necklaces, discover pieces that elevate every neckline.' },
-  { key: 'rings', name: 'Rings', image: '/assets/ring-3-1J1kiCf1QOj607i8A4hnGz1J_k0-JvjOa.jpg', description: 'Engagement rings, stackable bands, and cocktail rings crafted with exceptional diamonds.' },
-  { key: 'earrings', name: 'Earrings', image: '/assets/em-rd-earrings-2-172drLDQopmSdx_4wSl6ASjiUJ5qo5x6c.jpg', description: 'Studs, hoops, and drop earrings designed to catch the light and turn heads.' },
-  { key: 'bracelets', name: 'Bracelets', image: '/assets/tennis-bracelet-10-1f8GCCdbeTBl1Dy5TUDdXPbzx8d0H-PA8.jpg', description: 'Tennis bracelets, bangles, and chain bracelets that add sparkle to every gesture.' },
+  { key: 'necklaces', name: 'Necklaces', image: '/assets/kira-black/KJ00066P.RD-1-21.jpg', description: 'From delicate pendants to statement tennis necklaces, discover pieces that elevate every neckline.' },
+  { key: 'rings', name: 'Rings', image: '/assets/kira-black/KJ00749R.RD-2-21.jpg', description: 'Engagement rings, stackable bands, and cocktail rings crafted with exceptional diamonds.' },
+  { key: 'earrings', name: 'Earrings', image: '/assets/kira-black/KJ00151E.RD-1-21.jpg', description: 'Studs, hoops, and drop earrings designed to catch the light and turn heads.' },
+  { key: 'bracelets', name: 'Bracelets', image: '/assets/kira-black/KJ00373B.MX-7.5-21.jpg', description: 'Tennis bracelets, bangles, and chain bracelets that add sparkle to every gesture.' },
   { key: 'watches', name: 'Watches', image: '/assets/watch_category.PNG', description: 'Luxury timepieces that blend precision craftsmanship with timeless elegance.' }
 ];
 
 const brands = ['All', 'Rolex', 'Audemars Piguet', 'Cartier', 'Patek Philippe'];
+
+// A varied "featured" set for the location landing (2 per jewelry category),
+// so the page never shows a wall of the same thing.
+function featuredProducts() {
+  return ['necklaces', 'rings', 'earrings', 'bracelets']
+    .flatMap((c) => kiraProducts.filter((p) => p.category === c).slice(0, 2));
+}
 
 export default function LocationPage() {
   const { locationId, category } = useParams();
@@ -57,6 +73,7 @@ export default function LocationPage() {
   const [info, setInfo] = useState(fallback);
   const categoryRef = useRef(null);
   const [brandFilter, setBrandFilter] = useState('All');
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
   // Live overrides from Admin → Locations. Falls back silently to the
   // hardcoded `locationInfo` if the row is missing or the request fails.
@@ -76,21 +93,20 @@ export default function LocationPage() {
           hours: row.hours || fallback.hours,
           phone: row.phone || fallback.phone,
           mapUrl: row.mapUrl || row.map_url || fallback.mapUrl,
+          // Only use an admin-provided embed if present; otherwise keep the
+          // reliable address-based one (never the old blank pb= embed).
           mapEmbed: row.mapEmbed || row.map_embed || fallback.mapEmbed,
         });
       })
-      .catch(() => {
-        /* keep fallback */
-      });
+      .catch(() => { /* keep fallback */ });
     return () => { active = false; };
   }, [locationId]);
-  
+
   const selectedCategory = category ? categories.find(c => c.key === category) : null;
   const filteredWatches = brandFilter === 'All' ? watches : watches.filter(w => w.brand === brandFilter);
-  const curatedForLocation = locationCuratedProducts[locationId] || [];
-  const curatedFiltered = category
-    ? curatedForLocation.filter((p) => p.category === category)
-    : curatedForLocation;
+  const gridProducts = category
+    ? kiraProducts.filter((p) => p.category === category)
+    : featuredProducts();
 
   useEffect(() => {
     if (category && categoryRef.current) {
@@ -155,7 +171,7 @@ export default function LocationPage() {
                 <h2>{selectedCategory.name}</h2>
                 <p>{selectedCategory.description}</p>
                 <p className="small">
-                  Visit our {info.name} boutique to explore our {selectedCategory.name.toLowerCase()} collection in person. 
+                  Visit our {info.name} boutique to explore our {selectedCategory.name.toLowerCase()} collection in person.
                   Our concierge team will help you find the perfect piece.
                 </p>
                 <div className="actions">
@@ -178,11 +194,7 @@ export default function LocationPage() {
 
             <div className="watch-brand-filters">
               {brands.map((b) => (
-                <button
-                  key={b}
-                  className={`pill ${brandFilter === b ? 'primary' : 'ghost'}`}
-                  onClick={() => setBrandFilter(b)}
-                >
+                <button key={b} className={`pill ${brandFilter === b ? 'primary' : 'ghost'}`} onClick={() => setBrandFilter(b)}>
                   {b}
                 </button>
               ))}
@@ -209,7 +221,8 @@ export default function LocationPage() {
           </section>
         )}
 
-        {curatedFiltered.length > 0 && category !== 'watches' && (
+        {/* Jewelry grid — real catalog, same cards as the category pages */}
+        {category !== 'watches' && gridProducts.length > 0 && (
           <section className="section">
             <div className="section__header" style={{ textAlign: 'center', maxWidth: '700px', margin: '0 auto 32px' }}>
               <p className="eyebrow">Available at {info.name}</p>
@@ -218,43 +231,8 @@ export default function LocationPage() {
             </div>
 
             <div className="cards grid-4">
-              {curatedFiltered.map((product, idx) => (
-                <div key={`${product.image}-${idx}`} className="card inventory-card">
-                  <div className="card__media">
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      loading="lazy"
-                      onError={(e) => {
-                        e.currentTarget.src = '/assets/kira/KJ00061P.MX-3-21.jpg';
-                      }}
-                    />
-                  </div>
-                  <div className="card__content">
-                    <h3>{product.name}</h3>
-                    {product.sku && (
-                      <p className="small" style={{ color: 'var(--color-muted, #888)', marginBottom: '4px' }}>SKU: {product.sku}</p>
-                    )}
-                    {(product.ctw || product.gold || product.diamond) && (
-                      <p className="small" style={{ marginBottom: '4px' }}>
-                        {[product.ctw && `${product.ctw} CTW`, product.gold, product.diamond].filter(Boolean).join(' · ')}
-                      </p>
-                    )}
-                    {product.price > 0 && (
-                      <p className="watch-card__price" style={{ marginBottom: '8px' }}>
-                        ${product.price.toLocaleString()}
-                      </p>
-                    )}
-                    <div className="card__actions" style={{ marginTop: '8px' }}>
-                      <Link
-                        to="/book"
-                        className="pill primary small"
-                      >
-                        Book to View
-                      </Link>
-                    </div>
-                  </div>
-                </div>
+              {gridProducts.map((product) => (
+                <ProductCard key={product.sku || product.name} product={product} onSelect={setSelectedProduct} />
               ))}
             </div>
           </section>
@@ -265,7 +243,7 @@ export default function LocationPage() {
             <div className="location-info">
               <h2>About {info.name}</h2>
               <p>{info.longDescription}</p>
-              
+
               <div className="location-meta">
                 <div>
                   <h4>Address</h4>
@@ -298,7 +276,7 @@ export default function LocationPage() {
           {/* Embedded Google Map */}
           <div className="location-map">
             <iframe
-              src={info.mapEmbed}
+              src={mapEmbedFor(info.address)}
               width="100%"
               height="400"
               style={{ border: 0 }}
@@ -319,9 +297,9 @@ export default function LocationPage() {
 
           <div className="cards grid-5">
             {categories.map((cat) => (
-              <Link 
-                key={cat.key} 
-                to={`/location/${locationId}/${cat.key}`} 
+              <Link
+                key={cat.key}
+                to={`/location/${locationId}/${cat.key}`}
                 className={`category-card ${category === cat.key ? 'category-card--active' : ''}`}
               >
                 <div className="category-card__image">
@@ -345,6 +323,8 @@ export default function LocationPage() {
           </div>
         </section>
       </main>
+
+      <ProductModal product={selectedProduct} onClose={() => setSelectedProduct(null)} />
     </div>
   );
 }
