@@ -3868,7 +3868,7 @@ a:hover { color: var(--accent); }
 }
 
 .hero-banner__multi-image:nth-child(2) {
-  transform: scale(0.85);
+  transform: none;
   transform-origin: center center;
 }
 
@@ -5292,3 +5292,22 @@ a:hover { color: var(--accent); }
   width: 100%;
 }
 .inventory-card .card__content .pill { justify-content: center; }
+
+/* ===== Click-to-zoom on modal still images ===== */
+.product-modal__image { position: relative; }
+.product-modal__zoomimg { transition: transform 0.2s ease; will-change: transform; }
+.product-modal__zoomimg.is-zoomed { transform: scale(2.4); }
+.product-modal__zoomhint {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  padding: 5px 12px;
+  border-radius: 999px;
+  pointer-events: none;
+  white-space: nowrap;
+}

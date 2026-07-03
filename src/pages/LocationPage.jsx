@@ -55,7 +55,7 @@ const categories = [
   { key: 'rings', name: 'Rings', image: '/assets/kira-black/KJ00749R.RD-2-21.jpg', description: 'Engagement rings, stackable bands, and cocktail rings crafted with exceptional diamonds.' },
   { key: 'earrings', name: 'Earrings', image: '/assets/kira-black/KJ00151E.RD-1-21.jpg', description: 'Studs, hoops, and drop earrings designed to catch the light and turn heads.' },
   { key: 'bracelets', name: 'Bracelets', image: '/assets/kira-black/KJ00373B.MX-7.5-21.jpg', description: 'Tennis bracelets, bangles, and chain bracelets that add sparkle to every gesture.' },
-  { key: 'watches', name: 'Watches', image: '/assets/watch_category.PNG', description: 'Luxury timepieces that blend precision craftsmanship with timeless elegance.' }
+  { key: 'watches', name: 'Watches', image: '/assets/kira-black/watch-category.jpg', description: 'Luxury timepieces that blend precision craftsmanship with timeless elegance.' }
 ];
 
 const brands = ['All', 'Rolex', 'Audemars Piguet', 'Cartier', 'Patek Philippe'];

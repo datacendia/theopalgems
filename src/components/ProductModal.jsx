@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import SpinViewer from './SpinViewer';
 
@@ -66,13 +66,26 @@ export function ProductCard({ product, onSelect }) {
 }
 
 export function ProductModal({ product, onClose }) {
+  const [zoomed, setZoomed] = useState(false);
+
   useEffect(() => {
     const handleKey = (e) => { if (e.key === 'Escape') onClose(); };
     document.addEventListener('keydown', handleKey);
     return () => document.removeEventListener('keydown', handleKey);
   }, [onClose]);
 
+  // Reset zoom whenever the viewed product changes.
+  useEffect(() => { setZoomed(false); }, [product]);
+
   if (!product) return null;
+
+  const onZoomMove = (e) => {
+    if (!zoomed) return;
+    const r = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - r.left) / r.width) * 100;
+    const y = ((e.clientY - r.top) / r.height) * 100;
+    e.currentTarget.style.transformOrigin = `${x}% ${y}%`;
+  };
 
   const waLink = buildWhatsAppLink(product.description || product.name);
 
@@ -92,8 +105,17 @@ export function ProductModal({ product, onClose }) {
               <img
                 src={product.image || product.link}
                 alt={product.description || product.name}
+                className={`product-modal__zoomimg${zoomed ? ' is-zoomed' : ''}`}
+                style={{ cursor: zoomed ? 'zoom-out' : 'zoom-in' }}
+                onClick={() => setZoomed((z) => !z)}
+                onPointerMove={onZoomMove}
                 onError={(e) => { e.currentTarget.src = FALLBACK_IMG; }}
               />
+            )}
+            {!product.spin && (
+              <span className="product-modal__zoomhint" aria-hidden="true">
+                {zoomed ? 'Click to zoom out' : '⚲ Click to zoom'}
+              </span>
             )}
           </div>
           <div className="product-modal__info">
