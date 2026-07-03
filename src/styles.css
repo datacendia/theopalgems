@@ -5296,7 +5296,7 @@ a:hover { color: var(--accent); }
 /* ===== Click-to-zoom on modal still images ===== */
 .product-modal__image { position: relative; }
 .product-modal__zoomimg { transition: transform 0.2s ease; will-change: transform; }
-.product-modal__zoomimg.is-zoomed { transform: scale(2.4); }
+.product-modal__zoomimg.is-zoomed { transform: scale(1.8); }
 .product-modal__zoomhint {
   position: absolute;
   bottom: 10px;
