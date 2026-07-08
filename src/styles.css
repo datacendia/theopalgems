@@ -5311,3 +5311,8 @@ a:hover { color: var(--accent); }
   pointer-events: none;
   white-space: nowrap;
 }
+
+/* ===== Zoom for the 360 spin viewer (click to magnify, pan to inspect) ===== */
+.spin-viewer video { transition: transform 0.2s ease; }
+.spin-viewer.is-zoomed video { transform: scale(1.8); }
+.spin-viewer.is-zoomed { cursor: zoom-out; }
