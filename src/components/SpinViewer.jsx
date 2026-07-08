@@ -3,19 +3,18 @@ import React, { useRef, useEffect, useState, useCallback } from 'react';
 /**
  * Interactive 360° viewer with zoom.
  *
- * - Auto-rotates the orbit MP4; drag left/right to scrub through the rotation
- *   by hand (one full drag ≈ one full turn).
- * - CLICK (tap) toggles zoom. While zoomed the spin pauses and the view
- *   magnifies, following the cursor/finger so the customer can inspect detail.
- *   Click again to zoom out and resume the gentle auto-spin.
+ * - Auto-rotates the orbit MP4; drag left/right to scrub the rotation by hand.
+ * - TAP / CLICK toggles zoom (works with mouse and touch). While zoomed the
+ *   spin pauses and the view magnifies, following the cursor/finger so the
+ *   customer can inspect detail; drag pans. Tap again to zoom out and resume.
  *
- * Muted + playsInline so it works inline on mobile; falls back to the poster
- * until the video can decode.
+ * Muted + playsInline so it plays inline on mobile; poster shows until decode.
  */
 export default function SpinViewer({ src, poster, alt = '' }) {
   const wrapRef = useRef(null);
   const videoRef = useRef(null);
   const drag = useRef({ active: false, startX: 0, startT: 0, moved: 0, width: 1 });
+  const justDragged = useRef(false);
   const idleTimer = useRef(null);
   const [ready, setReady] = useState(false);
   const [interacting, setInteracting] = useState(false);
@@ -38,49 +37,54 @@ export default function SpinViewer({ src, poster, alt = '' }) {
   const onPointerDown = (e) => {
     const v = videoRef.current, wrap = wrapRef.current;
     if (!v || !wrap) return;
-    stopAuto();
     clearTimeout(idleTimer.current);
-    setInteracting(true);
-    drag.current = { active: true, startX: e.clientX, startT: v.currentTime, moved: 0, width: wrap.clientWidth || 1 };
-    wrap.setPointerCapture?.(e.pointerId);
+    justDragged.current = false;
+    if (!zoomed) { stopAuto(); setInteracting(true); }
+    drag.current = { active: true, startX: e.clientX, startT: v.currentTime, moved: 0, width: wrap.clientWidth || 1, captured: false };
+    // NB: don't capture the pointer here — capturing on touch suppresses the
+    // follow-up `click`, which breaks tap-to-zoom on mobile. Capture only once
+    // a real drag starts (below).
   };
 
   const onPointerMove = (e) => {
     const v = videoRef.current;
     if (!v) return;
-    // While zoomed, any move pans the magnified view.
-    if (zoomed) setOrigin(e.clientX, e.clientY);
+    if (zoomed) setOrigin(e.clientX, e.clientY); // pan follows pointer while zoomed
     const d = drag.current;
     if (!d.active) return;
     const dx = e.clientX - d.startX;
-    d.moved = Math.max(d.moved, Math.abs(dx) + Math.abs(e.clientY - (d.startY ?? e.clientY)));
-    e.preventDefault();
+    d.moved = Math.max(d.moved, Math.abs(dx));
+    if (d.moved > 6) {
+      justDragged.current = true;
+      if (!d.captured) { wrapRef.current?.setPointerCapture?.(e.pointerId); d.captured = true; }
+    }
     if (!zoomed && v.duration) {
       const t = d.startT + (dx / d.width) * v.duration; // scrub = rotate
       v.currentTime = ((t % v.duration) + v.duration) % v.duration;
+      e.preventDefault();
     }
   };
 
-  const endDrag = (e) => {
+  const onPointerUp = (e) => {
     const d = drag.current;
-    if (!d.active) return;
-    d.active = false;
-    wrapRef.current?.releasePointerCapture?.(e.pointerId);
-    if (d.moved < 6) {
-      // A tap → toggle zoom.
-      const next = !zoomed;
-      if (next) {
-        setOrigin(e.clientX, e.clientY);
-        setZoomed(true); // stay paused while zoomed
-        setInteracting(false); // let the "Click to zoom out" hint show
-      } else {
-        setZoomed(false);
-        setInteracting(false);
-        startAuto();
-      }
-    } else if (!zoomed) {
+    if (d.active) { d.active = false; if (d.captured) wrapRef.current?.releasePointerCapture?.(e.pointerId); }
+    if (!zoomed && justDragged.current) {
       // Was a rotate drag — resume the gentle auto-spin shortly after.
       idleTimer.current = setTimeout(() => { setInteracting(false); startAuto(); }, 1200);
+    }
+  };
+
+  // Tap/click toggles zoom. Ignored right after a drag (rotate/pan).
+  const onClick = (e) => {
+    if (justDragged.current) { justDragged.current = false; return; }
+    if (!zoomed) {
+      setOrigin(e.clientX, e.clientY);
+      stopAuto();
+      setInteracting(false);
+      setZoomed(true);
+    } else {
+      setZoomed(false);
+      startAuto();
     }
   };
 
@@ -92,9 +96,9 @@ export default function SpinViewer({ src, poster, alt = '' }) {
       className={`spin-viewer${interacting ? ' is-dragging' : ''}${zoomed ? ' is-zoomed' : ''}`}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
-      onPointerUp={endDrag}
-      onPointerCancel={endDrag}
-      onPointerLeave={endDrag}
+      onPointerUp={onPointerUp}
+      onPointerCancel={onPointerUp}
+      onClick={onClick}
     >
       <video
         ref={videoRef}
@@ -111,7 +115,7 @@ export default function SpinViewer({ src, poster, alt = '' }) {
       <span className="spin-viewer__badge">360°</span>
       {ready && (
         <span className="spin-viewer__hint" aria-hidden="true">
-          {zoomed ? 'Click to zoom out' : '↔ Drag to rotate · Click to zoom'}
+          {zoomed ? 'Tap to zoom out' : '↔ Drag to rotate · Tap to zoom'}
         </span>
       )}
     </div>

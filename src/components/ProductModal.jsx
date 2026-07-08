@@ -26,7 +26,7 @@ const FALLBACK_IMG = '/assets/placeholder-dark.jpg';
 
 /**
  * Shared product card used by category and location grids. Click opens the
- * modal (with the 360° spin viewer when available).
+ * modal (which shows the photo first, with a 360° option when available).
  */
 export function ProductCard({ product, onSelect }) {
   return (
@@ -67,6 +67,7 @@ export function ProductCard({ product, onSelect }) {
 
 export function ProductModal({ product, onClose }) {
   const [zoomed, setZoomed] = useState(false);
+  const [view, setView] = useState('photo'); // 'photo' | 'spin'
 
   useEffect(() => {
     const handleKey = (e) => { if (e.key === 'Escape') onClose(); };
@@ -74,10 +75,13 @@ export function ProductModal({ product, onClose }) {
     return () => document.removeEventListener('keydown', handleKey);
   }, [onClose]);
 
-  // Reset zoom whenever the viewed product changes.
-  useEffect(() => { setZoomed(false); }, [product]);
+  // Always open on the (higher-quality) photo, unzoomed, for each product.
+  useEffect(() => { setView('photo'); setZoomed(false); }, [product]);
 
   if (!product) return null;
+
+  const waLink = buildWhatsAppLink(product.description || product.name);
+  const showSpin = product.spin && view === 'spin';
 
   const onZoomMove = (e) => {
     if (!zoomed) return;
@@ -87,37 +91,57 @@ export function ProductModal({ product, onClose }) {
     e.currentTarget.style.transformOrigin = `${x}% ${y}%`;
   };
 
-  const waLink = buildWhatsAppLink(product.description || product.name);
-
   return (
     <div className="modal" aria-hidden="false" onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div className="modal__dialog product-modal">
         <button className="close" onClick={onClose} aria-label="Close">×</button>
         <div className="product-modal__layout">
-          <div className="product-modal__image">
-            {product.spin ? (
-              <SpinViewer
-                src={product.spin}
-                poster={product.image || product.link}
-                alt={product.description || product.name}
-              />
-            ) : (
-              <img
-                src={product.image || product.link}
-                alt={product.description || product.name}
-                className={`product-modal__zoomimg${zoomed ? ' is-zoomed' : ''}`}
-                style={{ cursor: zoomed ? 'zoom-out' : 'zoom-in' }}
-                onClick={() => setZoomed((z) => !z)}
-                onPointerMove={onZoomMove}
-                onError={(e) => { e.currentTarget.src = FALLBACK_IMG; }}
-              />
-            )}
-            {!product.spin && (
-              <span className="product-modal__zoomhint" aria-hidden="true">
-                {zoomed ? 'Click to zoom out' : '⚲ Click to zoom'}
-              </span>
+          <div className="product-modal__media">
+            <div className="product-modal__image">
+              {showSpin ? (
+                <SpinViewer
+                  src={product.spin}
+                  poster={product.image || product.link}
+                  alt={product.description || product.name}
+                />
+              ) : (
+                <img
+                  src={product.image || product.link}
+                  alt={product.description || product.name}
+                  className={`product-modal__zoomimg${zoomed ? ' is-zoomed' : ''}`}
+                  style={{ cursor: zoomed ? 'zoom-out' : 'zoom-in' }}
+                  onClick={() => setZoomed((z) => !z)}
+                  onPointerMove={onZoomMove}
+                  onError={(e) => { e.currentTarget.src = FALLBACK_IMG; }}
+                />
+              )}
+              {!showSpin && (
+                <span className="product-modal__zoomhint" aria-hidden="true">
+                  {zoomed ? 'Click to zoom out' : '⚲ Click to zoom'}
+                </span>
+              )}
+            </div>
+
+            {product.spin && (
+              <div className="product-modal__viewtoggle" role="group" aria-label="View">
+                <button
+                  type="button"
+                  className={view === 'photo' ? 'is-active' : ''}
+                  onClick={() => { setZoomed(false); setView('photo'); }}
+                >
+                  Photo
+                </button>
+                <button
+                  type="button"
+                  className={view === 'spin' ? 'is-active' : ''}
+                  onClick={() => { setZoomed(false); setView('spin'); }}
+                >
+                  360° View
+                </button>
+              </div>
             )}
           </div>
+
           <div className="product-modal__info">
             <p className="eyebrow">Our Collection</p>
             <h2>{product.description || product.name}</h2>

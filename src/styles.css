@@ -5316,3 +5316,32 @@ a:hover { color: var(--accent); }
 .spin-viewer video { transition: transform 0.2s ease; }
 .spin-viewer.is-zoomed video { transform: scale(1.8); }
 .spin-viewer.is-zoomed { cursor: zoom-out; }
+
+/* ===== Mobile: stack the product modal so the image is full-width =====
+   (The base 2-column rule appears later in the file than the earlier mobile
+   override, so it was winning the cascade and squishing the image. This block
+   is last, so it wins.) */
+@media (max-width: 768px) {
+  .product-modal__layout { grid-template-columns: 1fr; gap: 20px; }
+  .product-modal__image { aspect-ratio: auto; height: 340px; max-height: 60vh; }
+}
+
+/* ===== Photo / 360 view toggle in the product modal ===== */
+.product-modal__viewtoggle { display: flex; gap: 8px; margin-top: 12px; justify-content: center; }
+.product-modal__viewtoggle button {
+  flex: 1;
+  max-width: 150px;
+  padding: 9px 12px;
+  border: 1px solid var(--border, #e0d8c8);
+  background: #fff;
+  color: #1a1a1a;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border-radius: 2px;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.product-modal__viewtoggle button.is-active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+.product-modal__viewtoggle button:hover { border-color: #1a1a1a; }
