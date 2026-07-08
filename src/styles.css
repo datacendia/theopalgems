@@ -5345,3 +5345,21 @@ a:hover { color: var(--accent); }
 }
 .product-modal__viewtoggle button.is-active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
 .product-modal__viewtoggle button:hover { border-color: #1a1a1a; }
+
+/* ===== Product-card titles: keep the title row from collapsing =====
+   The centered flex column was letting the fixed-height title row shrink,
+   clipping 2-line names. Lock it and clamp titles to 2 lines. */
+.inventory-card .card__content > div:first-child {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.inventory-card .card__content h3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.3;
+}
