@@ -149,7 +149,10 @@ export function ProductModal({ product, onClose }) {
             <p className="eyebrow">Our Collection</p>
             <h2>{product.description || product.name}</h2>
             {product.price != null && product.price !== '' && (
-              <p className="product-modal__price">${Number(product.price).toLocaleString()}</p>
+              <>
+                <p className="product-modal__price">${Number(product.price).toLocaleString()}</p>
+                <p className="product-modal__price-note">Reference price · final pricing confirmed in boutique.</p>
+              </>
             )}
             {(product.ctw || product.gold || product.diamond || product.cert) && (
             <div className="product-modal__specs">

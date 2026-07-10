@@ -5380,9 +5380,56 @@ a:hover { color: var(--accent); }
   letter-spacing: 0.01em;
 }
 .product-modal__price {
-  margin: 4px 0 20px;
+  margin: 4px 0 6px;
   font-family: 'Cormorant Garamond', Georgia, serif;
   font-size: 28px;
   font-weight: 600;
   color: #1a1a1a;
+}
+.product-modal__price-note {
+  margin: 0 0 20px;
+  font-size: 12px;
+  color: #999;
+  letter-spacing: 0.02em;
+}
+
+/* Category price filter + sort controls */
+.catalog-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  max-width: 1200px;
+  margin: 0 auto 28px;
+  padding: 0 4px;
+}
+.catalog-controls__filters {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.catalog-controls__sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8a8175;
+  white-space: nowrap;
+}
+.catalog-controls__sort select {
+  font-family: inherit;
+  font-size: 13px;
+  padding: 8px 14px;
+  border: 1px solid var(--border, #e2ddd3);
+  border-radius: 50px;
+  background: #fff;
+  color: #1a1a1a;
+  cursor: pointer;
+  outline: none;
+}
+@media (max-width: 640px) {
+  .catalog-controls { justify-content: center; }
 }

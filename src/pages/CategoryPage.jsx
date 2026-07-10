@@ -7,10 +7,24 @@ import SEO from '../components/SEO';
 import { getPublicSections, getPublicLocations } from '../lib/publicData';
 import { defaultSections } from '../lib/defaultSiteContent';
 
+const PRICE_RANGES = [
+  { key: 'all', label: 'All Prices' },
+  { key: 'u2', label: 'Under $2,000', min: 0, max: 2000 },
+  { key: '2-4', label: '$2,000–$4,000', min: 2000, max: 4000 },
+  { key: '4-7', label: '$4,000–$7,000', min: 4000, max: 7000 },
+  { key: '7+', label: '$7,000+', min: 7000, max: Infinity },
+];
+const priceValue = (p) => {
+  const n = Number(String(p.price ?? '').replace(/[^0-9.]/g, ''));
+  return isNaN(n) || n === 0 ? null : n;
+};
+
 export default function CategoryPage() {
   const { category } = useParams();
   const [brandFilter, setBrandFilter] = useState('All');
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [sortOrder, setSortOrder] = useState('featured');
+  const [priceRange, setPriceRange] = useState('all');
   // Live CMS data — fall back to in-memory defaults until Supabase resolves.
   const [categoryPages, setCategoryPages] = useState(defaultSections.categoryPages);
   const [watchBrands, setWatchBrands] = useState(defaultSections.watchBrands);
@@ -43,6 +57,21 @@ export default function CategoryPage() {
   const filteredWatches = brandFilter === 'All' ? watches : watches.filter(w => w.brand === brandFilter);
 
   const filteredKiraProducts = kiraProducts.filter(product => product.category === category);
+
+  // Price filter + sort (client-side; prerender shows the default "featured / all").
+  const activeRange = PRICE_RANGES.find((r) => r.key === priceRange) || PRICE_RANGES[0];
+  const rangedProducts = filteredKiraProducts.filter((p) => {
+    if (activeRange.key === 'all') return true;
+    const v = priceValue(p);
+    return v != null && v >= activeRange.min && v < activeRange.max;
+  });
+  const displayedProducts = sortOrder === 'featured'
+    ? rangedProducts
+    : [...rangedProducts].sort((a, b) => {
+        const av = priceValue(a) ?? (sortOrder === 'price-asc' ? Infinity : -Infinity);
+        const bv = priceValue(b) ?? (sortOrder === 'price-asc' ? Infinity : -Infinity);
+        return sortOrder === 'price-asc' ? av - bv : bv - av;
+      });
 
   const waLink = buildWhatsAppLink(info.title);
 
@@ -126,13 +155,42 @@ export default function CategoryPage() {
               <p className="small" style={{ textAlign: 'center' }}>Exquisite jewelry pieces crafted with exceptional quality and attention to detail.</p>
             </div>
 
+            {filteredKiraProducts.length > 0 && (
+              <div className="catalog-controls">
+                <div className="catalog-controls__filters">
+                  {PRICE_RANGES.map((r) => (
+                    <button
+                      key={r.key}
+                      type="button"
+                      className={`pill small ${priceRange === r.key ? 'primary' : 'ghost'}`}
+                      onClick={() => setPriceRange(r.key)}
+                    >
+                      {r.label}
+                    </button>
+                  ))}
+                </div>
+                <label className="catalog-controls__sort">
+                  <span>Sort</span>
+                  <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value)}>
+                    <option value="featured">Featured</option>
+                    <option value="price-asc">Price: Low to High</option>
+                    <option value="price-desc">Price: High to Low</option>
+                  </select>
+                </label>
+              </div>
+            )}
+
             {filteredKiraProducts.length === 0 ? (
               <p className="small" style={{ textAlign: 'center', padding: '48px 0', color: 'var(--color-muted)' }}>
                 No pieces available in this category.
               </p>
+            ) : displayedProducts.length === 0 ? (
+              <p className="small" style={{ textAlign: 'center', padding: '48px 0', color: 'var(--color-muted)' }}>
+                No pieces in this price range.
+              </p>
             ) : (
               <div className="cards grid-4">
-                {filteredKiraProducts.map((product) => (
+                {displayedProducts.map((product) => (
                   <ProductCard key={product.sku || product.name} product={product} onSelect={setSelectedProduct} />
                 ))}
               </div>
