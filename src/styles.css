@@ -5367,3 +5367,22 @@ a:hover { color: var(--accent); }
 /* ===== Show product photos in full (no bottom crop), consistent on black ===== */
 .inventory-card .card__media { background: #0b0b0b; }
 .inventory-card .card__media img { object-fit: contain; }
+
+/* =============================================
+   JEWELRY PRICE DISPLAY (cards + detail modal)
+   ============================================= */
+.inventory-card__price {
+  margin: 0 0 6px;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 17px;
+  font-weight: 600;
+  color: #1a1a1a;
+  letter-spacing: 0.01em;
+}
+.product-modal__price {
+  margin: 4px 0 20px;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 28px;
+  font-weight: 600;
+  color: #1a1a1a;
+}

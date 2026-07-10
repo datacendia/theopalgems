@@ -45,9 +45,12 @@ export function ProductCard({ product, onSelect }) {
         {product.spin && <span className="card__spin-badge">360°</span>}
       </div>
       <div className="card__content" style={{ height: '140px', display: 'flex', flexDirection: 'column', padding: '12px' }}>
-        <div style={{ height: '40px', overflow: 'hidden', marginBottom: '8px' }}>
+        <div style={{ height: '40px', overflow: 'hidden', marginBottom: '4px' }}>
           <h3 style={{ margin: 0, lineHeight: '1.3', fontSize: '13px' }}>{product.description || product.name}</h3>
         </div>
+        {product.price != null && product.price !== '' && (
+          <p className="inventory-card__price">${Number(product.price).toLocaleString()}</p>
+        )}
         <div style={{ marginTop: 'auto' }} onClick={(e) => e.stopPropagation()}>
           <Link to="/book" className="pill primary small">Book to View</Link>
           <a
@@ -145,6 +148,10 @@ export function ProductModal({ product, onClose }) {
           <div className="product-modal__info">
             <p className="eyebrow">Our Collection</p>
             <h2>{product.description || product.name}</h2>
+            {product.price != null && product.price !== '' && (
+              <p className="product-modal__price">${Number(product.price).toLocaleString()}</p>
+            )}
+            {(product.ctw || product.gold || product.diamond || product.cert) && (
             <div className="product-modal__specs">
               {product.ctw && (
                 <div className="product-modal__spec">
@@ -171,6 +178,7 @@ export function ProductModal({ product, onClose }) {
                 </div>
               )}
             </div>
+            )}
             <p className="product-modal__note">All pieces are available to view in person at our boutiques. Book a private appointment or message us on WhatsApp for immediate assistance.</p>
             <div className="product-modal__actions">
               <Link to="/book" className="pill primary">Book Appointment to View</Link>
