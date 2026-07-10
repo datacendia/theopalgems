@@ -116,6 +116,15 @@ export default async (req) => {
       });
       console.log(`  ✓ ${r.email}`);
       sent++;
+      // Mark as sent so the 6-hourly cron never re-sends this survey. Clearing
+      // survey_scheduled_at drops the row from the "due" query above, so each
+      // subscriber receives the survey exactly once. (A failed send leaves the
+      // field set, so it will be retried on the next run.)
+      const { error: markErr } = await supabase
+        .from('subscribers')
+        .update({ survey_scheduled_at: null })
+        .eq('unsubscribe_token', r.unsubscribe_token);
+      if (markErr) console.error(`  ! could not mark ${r.email} as sent:`, markErr.message);
       // Rate limit: 120ms between sends
       await new Promise((res) => setTimeout(res, 120));
     } catch (err) {
