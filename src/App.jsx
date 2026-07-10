@@ -436,9 +436,11 @@ export default function App() {
         const imgs = heroRef.current.querySelectorAll('.hero-banner__image img');
         const scrollY = window.scrollY;
         const offset = scrollY * 0.35;
-        imgs.forEach((img, idx) => {
-          const scale = idx === 1 ? 0.85 : 1.15;
-          img.style.transform = `scale(${scale}) translateY(${offset}px)`;
+        // Scale all three images uniformly. The middle image used to get
+        // scale(0.85) here, which made it shrink out of line with the sides
+        // on scroll (and stay stuck smaller when scrolled back to the top).
+        imgs.forEach((img) => {
+          img.style.transform = `scale(1.15) translateY(${offset}px)`;
         });
       }
     };

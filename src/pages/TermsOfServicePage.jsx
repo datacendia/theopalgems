@@ -136,7 +136,7 @@ export default function TermsOfServicePage() {
             </p>
             <p>
               <strong>Email:</strong> <a href="mailto:sales@opalgems.com">sales@opalgems.com</a><br />
-              <strong>Phone:</strong> <a href="tel:+15612519560">+1 (561) 251-9560</a><br />
+              <strong>Phone:</strong> <a href="tel:+17863536000">+1 (786) 353-6000</a><br />
               <strong>Address:</strong> 10 N Ocean Blvd, Delray Beach, FL 33483
             </p>
           </section>

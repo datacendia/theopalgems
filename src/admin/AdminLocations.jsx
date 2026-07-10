@@ -140,7 +140,7 @@ export default function AdminLocations() {
                   type="text"
                   value={editing.phone}
                   onChange={(e) => setEditing({ ...editing, phone: e.target.value })}
-                  placeholder="(561) 251-9560"
+                  placeholder="(786) 353-6000"
                 />
               </div>
             </div>
