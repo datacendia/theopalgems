@@ -44,7 +44,7 @@ export function ProductCard({ product, onSelect }) {
         />
         {product.spin && <span className="card__spin-badge">360°</span>}
       </div>
-      <div className="card__content" style={{ height: '140px', display: 'flex', flexDirection: 'column', padding: '12px' }}>
+      <div className="card__content" style={{ minHeight: '150px', display: 'flex', flexDirection: 'column', padding: '12px' }}>
         <div style={{ height: '40px', overflow: 'hidden', marginBottom: '4px' }}>
           <h3 style={{ margin: 0, lineHeight: '1.3', fontSize: '13px' }}>{product.description || product.name}</h3>
         </div>
