@@ -1,7 +1,6 @@
 // Opal Sol boutique — real in-store inventory (photographed on black display
-// busts/stands). Source: Opal Sol inventory sheet (SKU/Description/CTW/COLOR/
-// Retail) + Drive photos, downloaded to /assets/opal-sol/. Rendered by
-// LocationPage for /location/opal-sol.
+// busts/stands). Source: Opal Sol inventory sheet + Drive photos, downloaded
+// to /assets/opal-sol/. Rendered by LocationPage for /location/opal-sol.
 export const opalSolProducts = [
   { name: "443720", link: "/assets/opal-sol/443720.jpg", description: "11 Stone Bar Necklace", category: "necklaces", ctw: "3", gold: "14K White Gold", price: 2300 },
   { name: "113593", link: "/assets/opal-sol/113593.jpg", description: "Circle Pendant Necklace", category: "necklaces", ctw: "2", gold: "14K Yellow Gold", price: 2500 },
@@ -10,7 +9,7 @@ export const opalSolProducts = [
   { name: "446310", link: "/assets/opal-sol/446310.jpg", description: "Round Pendant Necklace", category: "necklaces", ctw: "1.05", gold: "14K White Gold", price: 1400 },
   { name: "368019", link: "/assets/opal-sol/368019.jpg", description: "Tennis Necklace", category: "necklaces", ctw: "9.5", gold: "14K White Gold", price: 8700 },
   { name: "518473", link: "/assets/opal-sol/518473.jpg", description: "Emerald Eternity Band", category: "rings", ctw: "5", gold: "14K White Gold", price: 3375 },
-  { name: "515604", link: "/assets/opal-sol/515604.jpg", description: "Eternity Band", category: "rings", ctw: "4", gold: "14K White Gold", price: 2750 },
+  { name: "515604", link: "/assets/opal-sol/515604.jpg", description: "Eternity Band", category: "rings", ctw: "4", gold: "14K Yellow Gold", price: 2750 },
   { name: "518407", link: "/assets/opal-sol/518407.jpg", description: "Oval Eternity Band", category: "rings", ctw: "3", gold: "14K White Gold", price: 2450 },
   { name: "495223", link: "/assets/opal-sol/495223.jpg", description: "Round Eternity Band", category: "rings", ctw: "4", gold: "14K White Gold", price: 2750 },
   { name: "115130", link: "/assets/opal-sol/115130.jpg", description: "Toi et Moi Ring", category: "rings", ctw: "1.5", gold: "14K Yellow Gold", price: 2000 },
