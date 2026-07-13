@@ -1,11 +1,13 @@
-// Opal Sol boutique — real in-store inventory (photographed on black display
-// busts/stands). Source: Opal Sol inventory sheet + Drive photos (with cross-sheet
-// image fallback by SKU), downloaded to /assets/opal-sol/.
+// Opal Sol boutique — real in-store inventory (photographed on black display busts).
+// 27 pieces use their own photo; 4 (marked below) reuse a same-category, same-metal
+// stand-in photo pending their own shots. Source: Opal Sol sheet + Drive photos.
 export const opalSolProducts = [
   { name: "443720", link: "/assets/opal-sol/443720.jpg", description: "11 Stone Bar Necklace", category: "necklaces", ctw: "3", gold: "14K White Gold", price: 2300 },
   { name: "113593", link: "/assets/opal-sol/113593.jpg", description: "Circle Pendant Necklace", category: "necklaces", ctw: "2", gold: "14K Yellow Gold", price: 2500 },
   { name: "342600", link: "/assets/opal-sol/342600.jpg", description: "Cross Pendant Necklace", category: "necklaces", ctw: "3", gold: "14K Yellow Gold", price: 2500 },
   { name: "114059", link: "/assets/opal-sol/114059.jpg", description: "Pear Pendant Necklace", category: "necklaces", ctw: "1.01", gold: "14K White Gold", price: 1400 },
+  { name: "114060", link: "/assets/opal-sol/265427.jpg", description: "Pear Pendant Necklace", category: "necklaces", ctw: "1.02", gold: "14K Yellow Gold", price: 1400 }, // stand-in photo
+  { name: "114063", link: "/assets/opal-sol/265427.jpg", description: "Pear Pendant Necklace", category: "necklaces", ctw: "2", gold: "14K Yellow Gold", price: 2000 }, // stand-in photo
   { name: "446310", link: "/assets/opal-sol/446310.jpg", description: "Round Pendant Necklace", category: "necklaces", ctw: "1.05", gold: "14K White Gold", price: 1400 },
   { name: "446311", link: "/assets/opal-sol/446311.jpg", description: "Round Pendant Necklace", category: "necklaces", gold: "14K Yellow Gold", price: 1400 },
   { name: "368019", link: "/assets/opal-sol/368019.jpg", description: "Tennis Necklace", category: "necklaces", ctw: "9.5", gold: "14K White Gold", price: 8700 },
@@ -21,10 +23,12 @@ export const opalSolProducts = [
   { name: "493056", link: "/assets/opal-sol/493056.jpg", description: "Diamond Studs", category: "earrings", ctw: "2", gold: "14K White Gold", price: 1650 },
   { name: "503280", link: "/assets/opal-sol/503280.jpg", description: "Diamond Studs", category: "earrings", ctw: "4.14", gold: "14K White Gold", price: 2880 },
   { name: "265440", link: "/assets/opal-sol/265440.jpg", description: "Diamond Studs", category: "earrings", ctw: "5", gold: "14K White Gold", price: 3600 },
+  { name: "518386", link: "/assets/opal-sol/477161.jpg", description: "Hoop Earrings", category: "earrings", ctw: "2.6", gold: "14K Yellow Gold", price: 2400 }, // stand-in photo
   { name: "477161", link: "/assets/opal-sol/477161.jpg", description: "Hoop Earrings", category: "earrings", ctw: "7", gold: "14K Yellow Gold", price: 4500 },
   { name: "479539", link: "/assets/opal-sol/479539.jpg", description: "Large Hoop Earrings", category: "earrings", ctw: "10", gold: "14K White Gold", price: 6300 },
   { name: "480796", link: "/assets/opal-sol/480796.jpg", description: "Oval Hoop Earrings", category: "earrings", ctw: "3", gold: "14K White Gold", price: 2850 },
   { name: "114170", link: "/assets/opal-sol/114170.jpg", description: "Oval Hoop Earrings", category: "earrings", ctw: "4", gold: "14K White Gold", price: 3500 },
+  { name: "313646", link: "/assets/opal-sol/210151.jpg", description: "Bolo Bracelet", category: "bracelets", ctw: "1", gold: "14K Yellow Gold", price: 2700 }, // stand-in photo
   { name: "480712", link: "/assets/opal-sol/480712.jpg", description: "Emerald Tennis Bracelet", category: "bracelets", ctw: "5.25", gold: "14K White Gold", price: 4800 },
   { name: "210151", link: "/assets/opal-sol/210151.jpg", description: "Multi Shape Bolo Bracelet", category: "bracelets", ctw: "4", gold: "14K Yellow Gold", price: 3600 },
   { name: "518432", link: "/assets/opal-sol/518432.jpg", description: "Round Tennis Bracelet", category: "bracelets", ctw: "5", gold: "14K White Gold", price: 4350 },
