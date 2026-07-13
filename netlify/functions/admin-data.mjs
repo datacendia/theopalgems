@@ -47,6 +47,7 @@ const ALLOWED_TABLES = new Set([
   'subscribers',
   'testimonials',
   'warranty_registrations',
+  'newsletter_editions',
 ]);
 
 const ALLOWED_ACTIONS = new Set(['select', 'upsert', 'delete', 'count']);

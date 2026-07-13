@@ -1483,3 +1483,20 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Newsletter admin: input + badge modifiers (also used by other tabs) */
+.admin-input {
+  padding: 9px 12px;
+  border: 1px solid var(--admin-border, #e2ddd3);
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  background: #fff;
+  color: #1a1a1a;
+  outline: none;
+  box-sizing: border-box;
+}
+.admin-input:focus { border-color: #b4965a; }
+.admin-badge--success { background: #e7f4ec; color: #1f7a45; }
+.admin-badge--warning { background: #fbf1dd; color: #9a6b12; }
+.admin-badge--gray { background: #eeeae2; color: #6b6459; }

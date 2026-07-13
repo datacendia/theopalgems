@@ -65,6 +65,7 @@ const AdminSettings = lazyWithReload(() => import('./admin/AdminSettings.jsx'));
 const AdminProducts = lazyWithReload(() => import('./admin/AdminProducts.jsx'));
 const AdminSubscribers = lazyWithReload(() => import('./admin/AdminSubscribers.jsx'));
 const AdminWarranties = lazyWithReload(() => import('./admin/AdminWarranties.jsx'));
+const AdminNewsletter = lazyWithReload(() => import('./admin/AdminNewsletter.jsx'));
 
 function PageFallback() {
   return (
@@ -91,6 +92,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
             <Route path="/admin/photos" element={<AdminPhotos />} />
             <Route path="/admin/testimonials" element={<AdminTestimonials />} />
             <Route path="/admin/subscribers" element={<AdminSubscribers />} />
+            <Route path="/admin/newsletter" element={<AdminNewsletter />} />
             <Route path="/admin/warranties" element={<AdminWarranties />} />
             <Route path="/admin/settings" element={<AdminSettings />} />
           </Route>

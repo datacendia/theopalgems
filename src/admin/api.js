@@ -554,6 +554,55 @@ export async function deleteSubscriber(email) {
   return getSubscribers();
 }
 
+// ── Newsletter editions ──
+export async function getNewsletterEditions() {
+  const { data } = await adminFetch({
+    table: 'newsletter_editions',
+    action: 'select',
+    orderBy: 'created_at:desc',
+  });
+  return data || [];
+}
+
+export async function saveNewsletterEdition(edition) {
+  const { data } = await adminFetch({
+    table: 'newsletter_editions',
+    action: 'upsert',
+    payload: edition,
+  });
+  return (data && data[0]) || edition;
+}
+
+export async function deleteNewsletterEdition(id) {
+  if (!id) throw new Error('Edition id is required');
+  await adminFetch({
+    table: 'newsletter_editions',
+    action: 'delete',
+    filter: { column: 'id', value: id },
+  });
+}
+
+// Send (or test-send) an edition. Goes through a dedicated function that
+// renders the email and delivers via Resend. testEmail => send only to that
+// address and do NOT mark the edition as sent.
+export async function sendNewsletterEdition(editionId, testEmail = null) {
+  const token = localStorage.getItem('admin_token');
+  if (!token) throw new Error('Not authenticated. Please log in again.');
+  const res = await fetch('/api/newsletter-send', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ editionId, testEmail }),
+  });
+  let parsed = null;
+  try { parsed = await res.json(); } catch { /* non-JSON */ }
+  if (res.status === 401) {
+    localStorage.removeItem('admin_token');
+    throw new Error('Your session has expired. Please log in again.');
+  }
+  if (!res.ok) throw new Error(parsed?.error || `Send failed (${res.status})`);
+  return parsed || {};
+}
+
 // ── Warranty registrations ──
 export async function getWarrantyRegistrations() {
   const { data } = await adminFetch({
