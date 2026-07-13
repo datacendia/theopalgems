@@ -4,6 +4,7 @@ import watches from '../data/watches.js';
 import { kiraProducts } from '../data/kiraProducts.js';
 import { opalSolProducts } from '../data/opalSolProducts.js';
 import { jupiterProducts } from '../data/jupiterProducts.js';
+import { opalGrandProducts } from '../data/opalGrandProducts.js';
 import { ProductCard, ProductModal } from '../components/ProductModal';
 import SEO from '../components/SEO';
 import { getPublicLocations } from '../lib/publicData';
@@ -108,7 +109,7 @@ export default function LocationPage() {
   const filteredWatches = brandFilter === 'All' ? watches : watches.filter(w => w.brand === brandFilter);
   // Boutiques with their own real in-store stock (photographed on black display
   // busts). Others fall back to the shared catalog.
-  const REAL_STOCK = { 'opal-sol': opalSolProducts, 'jupiter-beach': jupiterProducts };
+  const REAL_STOCK = { 'opal-sol': opalSolProducts, 'jupiter-beach': jupiterProducts, 'opal-grand': opalGrandProducts };
   const catalog = REAL_STOCK[locationId] || kiraProducts;
   // Real-stock boutiques show EVERY piece on the landing (not a 2-per-category
   // teaser); shared-catalog boutiques keep the featured set.
