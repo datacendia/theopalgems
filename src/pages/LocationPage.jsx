@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import watches from '../data/watches.js';
 import { kiraProducts } from '../data/kiraProducts.js';
 import { opalSolProducts } from '../data/opalSolProducts.js';
+import { jupiterProducts } from '../data/jupiterProducts.js';
 import { ProductCard, ProductModal } from '../components/ProductModal';
 import SEO from '../components/SEO';
 import { getPublicLocations } from '../lib/publicData';
@@ -105,12 +106,13 @@ export default function LocationPage() {
 
   const selectedCategory = category ? categories.find(c => c.key === category) : null;
   const filteredWatches = brandFilter === 'All' ? watches : watches.filter(w => w.brand === brandFilter);
-  // Opal Sol shows its real in-store stock (photographed on black display busts);
-  // the other boutiques show the shared catalog.
-  const catalog = locationId === 'opal-sol' ? opalSolProducts : kiraProducts;
-  // Opal Sol has real per-store stock, so its landing shows EVERY piece (not a
-  // 2-per-category teaser). The shared-catalog boutiques keep the featured set.
-  const isRealStock = locationId === 'opal-sol';
+  // Boutiques with their own real in-store stock (photographed on black display
+  // busts). Others fall back to the shared catalog.
+  const REAL_STOCK = { 'opal-sol': opalSolProducts, 'jupiter-beach': jupiterProducts };
+  const catalog = REAL_STOCK[locationId] || kiraProducts;
+  // Real-stock boutiques show EVERY piece on the landing (not a 2-per-category
+  // teaser); shared-catalog boutiques keep the featured set.
+  const isRealStock = Boolean(REAL_STOCK[locationId]);
   const gridProducts = category
     ? catalog.filter((p) => p.category === category)
     : (isRealStock ? catalog : featuredProducts(catalog));
