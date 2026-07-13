@@ -108,9 +108,12 @@ export default function LocationPage() {
   // Opal Sol shows its real in-store stock (photographed on black display busts);
   // the other boutiques show the shared catalog.
   const catalog = locationId === 'opal-sol' ? opalSolProducts : kiraProducts;
+  // Opal Sol has real per-store stock, so its landing shows EVERY piece (not a
+  // 2-per-category teaser). The shared-catalog boutiques keep the featured set.
+  const isRealStock = locationId === 'opal-sol';
   const gridProducts = category
     ? catalog.filter((p) => p.category === category)
-    : featuredProducts(catalog);
+    : (isRealStock ? catalog : featuredProducts(catalog));
 
   useEffect(() => {
     if (category && categoryRef.current) {
@@ -230,8 +233,8 @@ export default function LocationPage() {
           <section className="section">
             <div className="section__header" style={{ textAlign: 'center', maxWidth: '700px', margin: '0 auto 32px' }}>
               <p className="eyebrow">Available at {info.name}</p>
-              <h2>{selectedCategory ? selectedCategory.name : 'Featured Pieces'}</h2>
-              <p className="small">A curated selection available for try-on at this location.</p>
+              <h2>{selectedCategory ? selectedCategory.name : (isRealStock ? 'Our Collection' : 'Featured Pieces')}</h2>
+              <p className="small">{isRealStock && !selectedCategory ? 'Every piece below is currently available to try on at this boutique.' : 'A curated selection available for try-on at this location.'}</p>
             </div>
 
             <div className="cards grid-4">
