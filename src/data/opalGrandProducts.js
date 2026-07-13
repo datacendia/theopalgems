@@ -1,11 +1,8 @@
-// Opal Grand boutique — real in-store inventory (photographed on black display
-// busts/stands). Source: Opal Grand inventory sheet (SKU/NAME/CATEGORY/CTW/PRICE)
-// + Drive photos. Metal backfilled cross-sheet by SKU where available (Grand's
+// Opal Grand boutique — real in-store inventory (photographed on black display busts).
+// Source: Opal Grand sheet + Drive photos. Metal backfilled cross-sheet by SKU (Grand's
 // sheet has no gold column). Rendered by LocationPage for /location/opal-grand.
 export const opalGrandProducts = [
   { name: "200014", link: "/assets/opal-grand/200014.jpg", description: "Adjustable Choker Necklace", category: "necklaces", ctw: "1.1", price: 1750 },
-  { name: "276348", link: "/assets/opal-grand/276348.jpg", description: "Bolo Chain Diamond Bracelet", category: "necklaces", ctw: "2", price: 2775 },
-  { name: "210139", link: "/assets/opal-grand/210139.jpg", description: "Bolo Chain Diamond Bracelet", category: "necklaces", ctw: "1", price: 2200 },
   { name: "429198", link: "/assets/opal-grand/429198.jpg", description: "Diamond Necklace", category: "necklaces", ctw: "1.5", price: 2375 },
   { name: "1013", link: "/assets/opal-grand/1013.jpg", description: "Diamond Necklace", category: "necklaces", ctw: "3.3", price: 2500 },
   { name: "429168", link: "/assets/opal-grand/429168.jpg", description: "Droplet Chain Necklace", category: "necklaces", ctw: "2", price: 2500 },
@@ -54,6 +51,8 @@ export const opalGrandProducts = [
   { name: "313578", link: "/assets/opal-grand/313578.jpg", description: "Stud Earrings", category: "earrings", ctw: "1.2", price: 2100 },
   { name: "200012", link: "/assets/opal-grand/200012.jpg", description: "Stud Earrings", category: "earrings", ctw: "2.1", price: 3000 },
   { name: "205167", link: "/assets/opal-grand/205167.jpg", description: "Three Stone Huggies", category: "earrings", ctw: "2.5", price: 3000 },
+  { name: "276348", link: "/assets/opal-grand/276348.jpg", description: "Bolo Chain Diamond Bracelet", category: "bracelets", ctw: "2", price: 2775 },
+  { name: "210139", link: "/assets/opal-grand/210139.jpg", description: "Bolo Chain Diamond Bracelet", category: "bracelets", ctw: "1", price: 2200 },
   { name: "480724", link: "/assets/opal-grand/480724.jpg", description: "Emerald Tennis Bracelet", category: "bracelets", ctw: "7.5", price: 6000 },
   { name: "114362", link: "/assets/opal-grand/114362.jpg", description: "Tennis Bracelet", category: "bracelets", ctw: "3", price: 3440 },
   { name: "210155", link: "/assets/opal-grand/210155.jpg", description: "Tennis Bracelet", category: "bracelets", ctw: "5", price: 4300 },
