@@ -1,0 +1,32 @@
+// Opal Sol boutique — real in-store inventory (photographed on black display
+// busts/stands). Source: Opal Sol inventory sheet (SKU/Description/CTW/COLOR/
+// Retail) + Drive photos, downloaded to /assets/opal-sol/. Rendered by
+// LocationPage for /location/opal-sol.
+export const opalSolProducts = [
+  { name: "443720", link: "/assets/opal-sol/443720.jpg", description: "11 Stone Bar Necklace", category: "necklaces", ctw: "3", gold: "14K White Gold", price: 2300 },
+  { name: "113593", link: "/assets/opal-sol/113593.jpg", description: "Circle Pendant Necklace", category: "necklaces", ctw: "2", gold: "14K Yellow Gold", price: 2500 },
+  { name: "342600", link: "/assets/opal-sol/342600.jpg", description: "Cross Pendant Necklace", category: "necklaces", ctw: "3", gold: "14K Yellow Gold", price: 2500 },
+  { name: "114059", link: "/assets/opal-sol/114059.jpg", description: "Pear Pendant Necklace", category: "necklaces", ctw: "1.01", gold: "14K White Gold", price: 1400 },
+  { name: "446310", link: "/assets/opal-sol/446310.jpg", description: "Round Pendant Necklace", category: "necklaces", ctw: "1.05", gold: "14K White Gold", price: 1400 },
+  { name: "368019", link: "/assets/opal-sol/368019.jpg", description: "Tennis Necklace", category: "necklaces", ctw: "9.5", gold: "14K White Gold", price: 8700 },
+  { name: "518473", link: "/assets/opal-sol/518473.jpg", description: "Emerald Eternity Band", category: "rings", ctw: "5", gold: "14K White Gold", price: 3375 },
+  { name: "515604", link: "/assets/opal-sol/515604.jpg", description: "Eternity Band", category: "rings", ctw: "4", gold: "14K White Gold", price: 2750 },
+  { name: "518407", link: "/assets/opal-sol/518407.jpg", description: "Oval Eternity Band", category: "rings", ctw: "3", gold: "14K White Gold", price: 2450 },
+  { name: "495223", link: "/assets/opal-sol/495223.jpg", description: "Round Eternity Band", category: "rings", ctw: "4", gold: "14K White Gold", price: 2750 },
+  { name: "115130", link: "/assets/opal-sol/115130.jpg", description: "Toi et Moi Ring", category: "rings", ctw: "1.5", gold: "14K Yellow Gold", price: 2000 },
+  { name: "115084", link: "/assets/opal-sol/115084.jpg", description: "Toi et Moi Ring", category: "rings", ctw: "3", gold: "14K Yellow Gold", price: 3100 },
+  { name: "114251", link: "/assets/opal-sol/114251.jpg", description: "3 Stone Hoop Earrings", category: "earrings", ctw: "2.5", gold: "14K Yellow Gold", price: 2250 },
+  { name: "446457", link: "/assets/opal-sol/446457.jpg", description: "Diamond Studs", category: "earrings", ctw: "1", gold: "14K White Gold", price: 600 },
+  { name: "315169", link: "/assets/opal-sol/315169.jpg", description: "Diamond Studs", category: "earrings", ctw: "2", gold: "14K White Gold", price: 1650 },
+  { name: "493056", link: "/assets/opal-sol/493056.jpg", description: "Diamond Studs", category: "earrings", ctw: "2", gold: "14K White Gold", price: 1650 },
+  { name: "503280", link: "/assets/opal-sol/503280.jpg", description: "Diamond Studs", category: "earrings", ctw: "4.14", gold: "14K White Gold", price: 2880 },
+  { name: "265440", link: "/assets/opal-sol/265440.jpg", description: "Diamond Studs", category: "earrings", ctw: "5", gold: "14K White Gold", price: 3600 },
+  { name: "477161", link: "/assets/opal-sol/477161.jpg", description: "Hoop Earrings", category: "earrings", ctw: "7", gold: "14K Yellow Gold", price: 4500 },
+  { name: "479539", link: "/assets/opal-sol/479539.jpg", description: "Large Hoop Earrings", category: "earrings", ctw: "10", gold: "14K White Gold", price: 6300 },
+  { name: "480796", link: "/assets/opal-sol/480796.jpg", description: "Oval Hoop Earrings", category: "earrings", ctw: "3", gold: "14K White Gold", price: 2850 },
+  { name: "114170", link: "/assets/opal-sol/114170.jpg", description: "Oval Hoop Earrings", category: "earrings", ctw: "4", gold: "14K White Gold", price: 3500 },
+  { name: "480712", link: "/assets/opal-sol/480712.jpg", description: "Emerald Tennis Bracelet", category: "bracelets", ctw: "5.25", gold: "14K White Gold", price: 4800 },
+  { name: "210151", link: "/assets/opal-sol/210151.jpg", description: "Multi Shape Bolo Bracelet", category: "bracelets", ctw: "4", gold: "14K Yellow Gold", price: 3600 },
+  { name: "518432", link: "/assets/opal-sol/518432.jpg", description: "Round Tennis Bracelet", category: "bracelets", ctw: "5", gold: "14K White Gold", price: 4350 },
+  { name: "480753", link: "/assets/opal-sol/480753.jpg", description: "Tennis Bracelet", category: "bracelets", ctw: "6", gold: "14K White Gold", price: 4800 },
+];

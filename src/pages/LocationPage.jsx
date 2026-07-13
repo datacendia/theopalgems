@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import watches from '../data/watches.js';
 import { kiraProducts } from '../data/kiraProducts.js';
+import { opalSolProducts } from '../data/opalSolProducts.js';
 import { ProductCard, ProductModal } from '../components/ProductModal';
 import SEO from '../components/SEO';
 import { getPublicLocations } from '../lib/publicData';
@@ -62,9 +63,9 @@ const brands = ['All', 'Rolex', 'Audemars Piguet', 'Cartier', 'Patek Philippe'];
 
 // A varied "featured" set for the location landing (2 per jewelry category),
 // so the page never shows a wall of the same thing.
-function featuredProducts() {
+function featuredProducts(catalog) {
   return ['necklaces', 'rings', 'earrings', 'bracelets']
-    .flatMap((c) => kiraProducts.filter((p) => p.category === c).slice(0, 2));
+    .flatMap((c) => catalog.filter((p) => p.category === c).slice(0, 2));
 }
 
 export default function LocationPage() {
@@ -104,9 +105,12 @@ export default function LocationPage() {
 
   const selectedCategory = category ? categories.find(c => c.key === category) : null;
   const filteredWatches = brandFilter === 'All' ? watches : watches.filter(w => w.brand === brandFilter);
+  // Opal Sol shows its real in-store stock (photographed on black display busts);
+  // the other boutiques show the shared catalog.
+  const catalog = locationId === 'opal-sol' ? opalSolProducts : kiraProducts;
   const gridProducts = category
-    ? kiraProducts.filter((p) => p.category === category)
-    : featuredProducts();
+    ? catalog.filter((p) => p.category === category)
+    : featuredProducts(catalog);
 
   useEffect(() => {
     if (category && categoryRef.current) {
