@@ -1,12 +1,13 @@
 // Opal Sol boutique — real in-store inventory (photographed on black display
-// busts/stands). Source: Opal Sol inventory sheet + Drive photos, downloaded
-// to /assets/opal-sol/. Rendered by LocationPage for /location/opal-sol.
+// busts/stands). Source: Opal Sol inventory sheet + Drive photos (with cross-sheet
+// image fallback by SKU), downloaded to /assets/opal-sol/.
 export const opalSolProducts = [
   { name: "443720", link: "/assets/opal-sol/443720.jpg", description: "11 Stone Bar Necklace", category: "necklaces", ctw: "3", gold: "14K White Gold", price: 2300 },
   { name: "113593", link: "/assets/opal-sol/113593.jpg", description: "Circle Pendant Necklace", category: "necklaces", ctw: "2", gold: "14K Yellow Gold", price: 2500 },
   { name: "342600", link: "/assets/opal-sol/342600.jpg", description: "Cross Pendant Necklace", category: "necklaces", ctw: "3", gold: "14K Yellow Gold", price: 2500 },
   { name: "114059", link: "/assets/opal-sol/114059.jpg", description: "Pear Pendant Necklace", category: "necklaces", ctw: "1.01", gold: "14K White Gold", price: 1400 },
   { name: "446310", link: "/assets/opal-sol/446310.jpg", description: "Round Pendant Necklace", category: "necklaces", ctw: "1.05", gold: "14K White Gold", price: 1400 },
+  { name: "446311", link: "/assets/opal-sol/446311.jpg", description: "Round Pendant Necklace", category: "necklaces", gold: "14K Yellow Gold", price: 1400 },
   { name: "368019", link: "/assets/opal-sol/368019.jpg", description: "Tennis Necklace", category: "necklaces", ctw: "9.5", gold: "14K White Gold", price: 8700 },
   { name: "518473", link: "/assets/opal-sol/518473.jpg", description: "Emerald Eternity Band", category: "rings", ctw: "5", gold: "14K White Gold", price: 3375 },
   { name: "515604", link: "/assets/opal-sol/515604.jpg", description: "Eternity Band", category: "rings", ctw: "4", gold: "14K Yellow Gold", price: 2750 },
