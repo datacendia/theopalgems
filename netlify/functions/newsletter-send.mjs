@@ -12,6 +12,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { newsletterEmailHtml } from '../../src/lib/newsletterEmail.js';
+import { themeByKey } from '../../src/lib/newsletterThemes.js';
 
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
@@ -81,6 +82,7 @@ export default async (req) => {
   if (edition.status === 'sent' && !testEmail) return json(400, { error: 'This edition has already been sent.' }, origin);
   if (!Array.isArray(edition.pieces) || edition.pieces.length === 0) return json(400, { error: 'Edition has no pieces.' }, origin);
 
+  const accent = themeByKey(edition.theme_key)?.accent;
   const render = (unsubscribeUrl) => newsletterEmailHtml({
     themeName: edition.theme_name || '',
     headline: edition.headline || '',
@@ -88,6 +90,7 @@ export default async (req) => {
     pieces: edition.pieces,
     siteUrl: SITE_URL,
     unsubscribeUrl,
+    accent,
   });
   const subject = edition.subject || 'Opal Gems';
 

@@ -5,7 +5,7 @@ import {
   deleteNewsletterEdition,
   sendNewsletterEdition,
 } from './api';
-import { themeForDate, suggestPieces } from '../lib/newsletterThemes.js';
+import { themeForDate, themeByKey, suggestPieces } from '../lib/newsletterThemes.js';
 import { newsletterEmailHtml } from '../lib/newsletterEmail.js';
 import { kiraProducts } from '../data/kiraProducts.js';
 
@@ -152,6 +152,7 @@ export default function AdminNewsletter() {
       pieces: draft.pieces || [],
       siteUrl: 'https://theopalgems.com',
       unsubscribeUrl: '#',
+      accent: themeByKey(draft.theme_key)?.accent,
     });
   }, [draft]);
 

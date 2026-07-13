@@ -67,21 +67,27 @@ export function newsletterEmailHtml({
   siteUrl = 'https://theopalgems.com',
   unsubscribeUrl = '#',
   whatsappNumber = '+15612519560',
+  accent = { motif: '', color: GOLD },
 }) {
   const opts = { siteUrl, whatsappNumber };
+  const AC = (accent && accent.color) || GOLD;
+  const MOTIF = (accent && accent.motif) || '';
   return `
   <div style="background:#faf8f5;margin:0;padding:0;">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#faf8f5;">
     <tr><td align="center" style="padding:32px 16px;">
       <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:600px;background:#ffffff;border-radius:10px;overflow:hidden;">
+        <!-- Seasonal ribbon -->
+        <tr><td style="height:6px;background:${AC};font-size:0;line-height:0;">&nbsp;</td></tr>
         <!-- Header -->
-        <tr><td align="center" style="padding:36px 32px 8px;">
+        <tr><td align="center" style="padding:32px 32px 8px;">
           <div style="font-family:'Cormorant Garamond',Georgia,serif;font-weight:500;letter-spacing:0.1em;font-size:26px;color:${INK};">OPAL GEMS</div>
           <div style="letter-spacing:0.25em;font-size:10px;color:${GOLD};margin-top:8px;text-transform:uppercase;">Elevated Diamonds, In Person</div>
         </td></tr>
         <!-- Theme + headline -->
         <tr><td align="center" style="padding:24px 40px 0;">
-          ${themeName ? `<div style="letter-spacing:0.22em;font-size:11px;color:${GOLD};text-transform:uppercase;margin-bottom:14px;">${themeName}</div>` : ''}
+          ${themeName ? `<div style="letter-spacing:0.22em;font-size:11px;color:${AC};text-transform:uppercase;margin-bottom:10px;">${themeName}</div>` : ''}
+          ${MOTIF ? `<div style="color:${AC};font-size:16px;letter-spacing:0.5em;margin-bottom:14px;">${MOTIF} <span style="opacity:0.5;">✦</span> ${MOTIF}</div>` : ''}
           <h1 style="margin:0;font-family:'Cormorant Garamond',Georgia,serif;font-weight:400;font-size:28px;line-height:1.25;color:${INK};">${headline}</h1>
           <p style="margin:16px 0 0;font-family:Georgia,serif;font-size:15px;line-height:1.7;color:#4a4a4a;">${intro}</p>
         </td></tr>
