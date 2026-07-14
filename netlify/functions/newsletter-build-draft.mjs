@@ -78,7 +78,7 @@ export default async () => {
   const excludeNames = (recent || []).flatMap((e) => (Array.isArray(e.pieces) ? e.pieces.map((p) => p.name) : []));
 
   const theme = themeForDate(new Date());
-  const pieces = suggestPieces(theme, kiraProducts, { count: 4, excludeNames }).map(slim);
+  const pieces = suggestPieces(theme, kiraProducts, { count: 4, excludeNames, renderOnly: true }).map(slim);
 
   const scheduledFor = new Date(Date.now() + 2 * 86400000).toISOString(); // suggested send ~2 days out
   const draft = {

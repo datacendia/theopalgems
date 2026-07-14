@@ -128,12 +128,15 @@ const priceOf = (p) => {
  * the theme's priority order — so a 4-piece edition pulls from up to 4
  * different categories instead of clustering on one. Skips `excludeNames`.
  */
-export function suggestPieces(theme, catalog, { count = 4, excludeNames = [] } = {}) {
+export function suggestPieces(theme, catalog, { count = 4, excludeNames = [], renderOnly = false } = {}) {
   const exclude = new Set(excludeNames);
   const hints = theme.hints || { categories: [], keywords: [] };
 
   const scored = catalog
-    .filter((p) => (p.link || p.image) && priceOf(p) != null && !exclude.has(p.name))
+    // renderOnly keeps the newsletter's photos uniform: only the clean
+    // floating-on-black renders (/assets/kira-black/), not the display-bust shots.
+    .filter((p) => (p.link || p.image) && priceOf(p) != null && !exclude.has(p.name)
+      && (!renderOnly || /\/assets\/kira-black\//.test(p.link || p.image || '')))
     .map((p) => {
       const desc = (p.description || '').toLowerCase();
       let score = 0;

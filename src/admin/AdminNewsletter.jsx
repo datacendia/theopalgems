@@ -69,7 +69,7 @@ export default function AdminNewsletter() {
       setBusy(true);
       const theme = themeForDate(new Date());
       const recent = editions.slice(0, 3).flatMap((e) => (e.pieces || []).map((p) => p.name));
-      const pieces = suggestPieces(theme, kiraProducts, { count: 4, excludeNames: recent }).map(slim);
+      const pieces = suggestPieces(theme, kiraProducts, { count: 4, excludeNames: recent, renderOnly: true }).map(slim);
       const saved = await saveNewsletterEdition({
         theme_key: theme.key,
         theme_name: theme.name,
