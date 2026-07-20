@@ -1,12 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useNavigate } from 'react-router-dom';
-import { getPublicLocations } from './lib/publicData';
+import { getPublicLocations, getPublicSections } from './lib/publicData';
+
+// Shown in the footer "Our Boutiques" list only (not a full boutique with
+// inventory / nav dropdown / location page). Address per opalcollection.com.
+const OLDE_NAPLES = {
+  key: 'olde-naples-hotel',
+  name: 'Olde Naples Hotel',
+  address: '200 Broad Avenue South, Naples, FL 34102',
+};
+
+// One shared phone number for all boutiques.
+const BOUTIQUE_PHONE = '(786) 353-6000';
 
 export default function Layout() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [locations, setLocations] = useState([]);
+  const [reviews, setReviews] = useState(null);
   const [subscribeEmail, setSubscribeEmail] = useState('');
   const [subscribeHoneypot, setSubscribeHoneypot] = useState('');
   const [subscribeStatus, setSubscribeStatus] = useState({ state: 'idle', message: '' });
@@ -39,6 +51,7 @@ export default function Layout() {
     getPublicLocations().then(locs => setLocations(locs.map(loc => ({
       key: loc.key, name: loc.name, city: loc.city, address: loc.address, phone: loc.phone,
     }))));
+    getPublicSections().then(s => setReviews(s.reviews)).catch(() => {});
   }, []);
 
   const handleSearch = (e) => {
@@ -151,18 +164,29 @@ export default function Layout() {
                 <img src="/assets/logos/Instagram_Glyph_Gradient.png" alt="Instagram" width="24" height="24" style={{ display: 'block' }} />
               </a>
             </div>
+            {reviews && (
+              <div className="footer__reviews reviews-rating">
+                <span className="reviews-stars">★★★★★</span>
+                <span className="reviews-score">{reviews.score}</span>
+                <span className="reviews-count">{reviews.count}</span>
+              </div>
+            )}
           </div>
 
           {/* Locations Column */}
           <div className="footer__column">
             <h4>Our Boutiques</h4>
-            {locations.map((loc) => (
+            {[...locations, OLDE_NAPLES].map((loc) => (
               <div key={loc.key} className="footer__location">
                 <strong>{loc.name}</strong>
                 <span>{loc.address}</span>
-                <a href={`tel:${loc.phone.replace(/[^0-9]/g, '')}`}>{loc.phone}</a>
               </div>
             ))}
+            <div className="footer__location">
+              <strong>Various Locations</strong>
+              <span>1 simple call</span>
+              <a href={`tel:${BOUTIQUE_PHONE.replace(/[^0-9]/g, '')}`}>{BOUTIQUE_PHONE}</a>
+            </div>
           </div>
 
           {/* Hours Column */}
@@ -184,6 +208,7 @@ export default function Layout() {
               <a href="/#locations" onClick={(e) => handleHashLink(e, 'locations')}>Locations</a>
               <Link to="/lab-vs-natural" onClick={() => window.scrollTo(0, 0)}>Lab vs. Natural</Link>
               <Link to="/faq" onClick={() => window.scrollTo(0, 0)}>FAQ</Link>
+              <a href="https://opal-gems.vercel.app/customers" target="_blank" rel="noopener noreferrer">Register Customer</a>
             </nav>
           </div>
 

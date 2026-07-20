@@ -700,17 +700,6 @@ export default function App() {
               </div>
             ))}
           </div>
-
-          {/* Reviews & Shop Integration */}
-          <div className="reviews-section">
-            <div className="reviews-header">
-              <div className="reviews-rating">
-                <span className="reviews-stars">★★★★★</span>
-                <span className="reviews-score">{sections.reviews?.score}</span>
-              </div>
-              <span className="reviews-count">{sections.reviews?.count}</span>
-            </div>
-          </div>
         </section>
 
         <section className="section reveal" id="locations">
