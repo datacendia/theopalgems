@@ -7,6 +7,9 @@ dist
 # Local Netlify folder
 .netlify
 
+# Claude Code local working dir (settings, dev-server config, worktrees) — never commit
+.claude/
+
 # Raw turntable videos (processed locally into 360 frames; not committed)
 /incoming_videos/
 /Whatsapp1/
